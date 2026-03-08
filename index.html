@@ -1099,217 +1099,341 @@ const AIRCRAFT = [
 ];
 
 const ROUTES = [
-  // ─────────────────────────────────────────────
-  // ACTIVE FRANKFURT ROUTES (2025–2026)
-  // ─────────────────────────────────────────────
+
+  // ═══════════════════════════════════════════════════════════
+  // ACTIVE — FRANKFURT (2025–2026)
+  // ═══════════════════════════════════════════════════════════
   {
     id: 'fra-bos', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOS', destFull: 'Boston Logan', country: 'USA', region: 'North America',
-    flightNum: 'LH 424', depTime: '13:10', depUTC: '12:10', arrTime: '15:25', arrUTC: '19:25',
+    flightNum: 'LH 424 / LH 425', depTime: '13:10', depUTC: '12:10', arrTime: '15:25', arrUTC: '19:25',
     depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 15m', durationMin: 555,
     distance: '6108 km / 3796 mi', distanceKm: 6108,
     status: 'active', aircraft: ['D-AIHF','D-AIHW','D-AIHY'],
-    frequency: 'Daily (Mar 30 – Jun 14, 2026)', notes: 'Scheduled Mar 30–Jun 14 2026; Boeing 787 delivery delays extended A346 ops',
+    frequency: 'Daily (through Jun 2026)', notes: 'Busiest A346 route Oct 2025 (~55 flights/mo). Boeing 787 delays extended ops.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 42.3656, lon: -71.0096
   },
   {
     id: 'fra-jfk', hub: 'FRA', hubFull: 'Frankfurt', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
-    flightNum: 'LH 400', depTime: '10:20', depUTC: '09:20', arrTime: '12:50', arrUTC: '17:50',
+    flightNum: 'LH 400 / LH 401', depTime: '10:20', depUTC: '09:20', arrTime: '12:50', arrUTC: '17:50',
     depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 30m', durationMin: 570,
     distance: '6194 km / 3849 mi', distanceKm: 6194,
     status: 'active', aircraft: ['D-AIHX','D-AIHZ','D-AIHF'],
-    frequency: 'Daily', notes: 'Core year-round route; D-AIHZ spotted FRA–JFK Jun 2025',
+    frequency: 'Daily (reduced Jan 2026)', notes: 'D-AIHZ confirmed FRA–JFK Jun 2025. Reduced to 7 weekly Jan 13–Feb 14, 2026.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 40.6413, lon: -73.7781
   },
   {
-    id: 'fra-ord', hub: 'FRA', hubFull: 'Frankfurt', dest: 'ORD', destFull: "Chicago O'Hare", country: 'USA', region: 'North America',
-    flightNum: 'LH 430', depTime: '11:30', depUTC: '10:30', arrTime: '13:30', arrUTC: '19:30',
-    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)', duration: '10h 00m', durationMin: 600,
-    distance: '7585 km / 4713 mi', distanceKm: 7585,
-    status: 'active', aircraft: ['D-AIHF','D-AIHW'],
-    frequency: 'Active (winter gaps)', notes: 'D-AIHF spotted FRA–ORD Jun 2025; operational into 2026',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 41.9742, lon: -87.9073
-  },
-  {
     id: 'fra-dtw', hub: 'FRA', hubFull: 'Frankfurt', dest: 'DTW', destFull: 'Detroit Metropolitan', country: 'USA', region: 'North America',
-    flightNum: 'LH 442', depTime: '11:05', depUTC: '10:05', arrTime: '13:35', arrUTC: '18:35',
+    flightNum: 'LH 442 / LH 443', depTime: '11:05', depUTC: '10:05', arrTime: '13:35', arrUTC: '18:35',
     depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 30m', durationMin: 570,
     distance: '6922 km / 4302 mi', distanceKm: 6922,
     status: 'active', aircraft: ['D-AIHY','D-AIHZ'],
-    frequency: 'Active', notes: 'Detroit among confirmed 2025–26 active A346 transatlantic routes',
+    frequency: 'Daily (gaps Jan–Feb 2026)', notes: 'First class cabin not sold on this route; business highest available.',
     configs: { first: 0, business: 44, premium: 32, economy: 213 },
     lat: 42.2124, lon: -83.3534
   },
   {
-    id: 'fra-ruh-dmm', hub: 'FRA', hubFull: 'Frankfurt', dest: 'DMM', destFull: 'Dammam (via Riyadh)', country: 'Saudi Arabia', region: 'Middle East',
-    flightNum: 'LH 634', depTime: '09:50', depUTC: '08:50', arrTime: '20:20', arrUTC: '17:20',
-    depTZ: 'CET (UTC+1)', arrTZ: 'AST (UTC+3)', duration: '7h 30m (RUH stop)', durationMin: 450,
-    distance: '4812 km / 2990 mi', distanceKm: 4812,
-    status: 'seasonal', aircraft: ['D-AIHW','D-AIHY'],
-    frequency: 'Active (RUH daily confirmed Oct 2025)', notes: 'D-AIHZ spotted RUH–FRA Dec 2025; Riyadh among final scheduled routes through Oct 2026',
+    id: 'fra-ruh', hub: 'FRA', hubFull: 'Frankfurt', dest: 'RUH', destFull: 'Riyadh King Khalid', country: 'Saudi Arabia', region: 'Middle East',
+    flightNum: 'LH 622 / LH 623', depTime: '09:50', depUTC: '08:50', arrTime: '17:40', arrUTC: '14:40',
+    depTZ: 'CET (UTC+1)', arrTZ: 'AST (UTC+3)', duration: '6h 50m', durationMin: 410,
+    distance: '4490 km / 2790 mi', distanceKm: 4490,
+    status: 'active', aircraft: ['D-AIHW','D-AIHY','D-AIHZ'],
+    frequency: 'Daily; continues via DMM (seasonal)', notes: 'D-AIHZ confirmed RUH–FRA Dec 2025. LH622 continues to Dammam (DMM) seasonally. Final scheduled A346 op: Oct 25, 2026 on this route.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 26.4712, lon: 49.7979
+    lat: 24.9578, lon: 46.6989
   },
-  // ─────────────────────────────────────────────
-  // RECENT FRANKFURT ROUTES (2022–2024)
-  // ─────────────────────────────────────────────
+
+  // ═══════════════════════════════════════════════════════════
+  // RECENT FRANKFURT ROUTES (2022–2025, now retired/replaced)
+  // ═══════════════════════════════════════════════════════════
+  {
+    id: 'fra-ord', hub: 'FRA', hubFull: 'Frankfurt', dest: 'ORD', destFull: "Chicago O'Hare", country: 'USA', region: 'North America',
+    flightNum: 'LH 430 / LH 431', depTime: '11:30', depUTC: '10:30', arrTime: '13:30', arrUTC: '19:30',
+    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)', duration: '10h 00m', durationMin: 600,
+    distance: '7585 km / 4713 mi', distanceKm: 7585,
+    status: 'seasonal', aircraft: ['D-AIHF','D-AIHW','D-AIHT'],
+    frequency: 'Until Jan 31; resumes Mar 20 annually', notes: 'A346 served FRA–ORD through early 2026 winter; suspended Feb–Mar gap each year.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 41.9742, lon: -87.9073
+  },
+  {
+    id: 'fra-iad', hub: 'FRA', hubFull: 'Frankfurt', dest: 'IAD', destFull: 'Washington Dulles', country: 'USA', region: 'North America',
+    flightNum: 'LH 418 / LH 419', depTime: '10:45', depUTC: '09:45', arrTime: '13:40', arrUTC: '18:40',
+    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 55m', durationMin: 595,
+    distance: '6902 km / 4289 mi', distanceKm: 6902,
+    status: 'seasonal', aircraft: ['D-AIHF','D-AIHY','D-AIHT'],
+    frequency: 'Seasonal; A346 Apr–Oct 2024/2025', notes: 'Confirmed A346-600 in Apr 2024 (12.9m weekly ASKs). A380 takes over summers from MUC.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 38.9531, lon: -77.4565
+  },
+  {
+    id: 'fra-hkg', hub: 'FRA', hubFull: 'Frankfurt', dest: 'HKG', destFull: 'Hong Kong International', country: 'Hong Kong', region: 'Asia',
+    flightNum: 'LH 796 / LH 797', depTime: '21:25', depUTC: '20:25', arrTime: '16:15+1', arrUTC: '08:15',
+    depTZ: 'CET (UTC+1)', arrTZ: 'HKT (UTC+8)', duration: '11h 50m', durationMin: 710,
+    distance: '9169 km / 5699 mi', distanceKm: 9169,
+    status: 'seasonal', aircraft: ['D-AIHX','D-AIHW','D-AIHN'],
+    frequency: 'Year-round except Nov–Dec', notes: 'Busiest A346 route by ASK (18.03m weekly) as of Apr 2024. D-AIHX confirmed HKG–FRA 2024.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 22.3080, lon: 113.9185
+  },
+  {
+    id: 'fra-pvg', hub: 'FRA', hubFull: 'Frankfurt', dest: 'PVG', destFull: 'Shanghai Pudong', country: 'China', region: 'Asia',
+    flightNum: 'LH 728 / LH 729', depTime: '21:50', depUTC: '20:50', arrTime: '14:40+1', arrUTC: '06:40',
+    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC+8)', duration: '10h 50m', durationMin: 650,
+    distance: '9204 km / 5720 mi', distanceKm: 9204,
+    status: 'seasonal', aircraft: ['D-AIHW','D-AIHY','D-AIHZ'],
+    frequency: 'Seasonal 2025', notes: 'FRA–PVG confirmed with A346 in summer 2025 schedule.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 31.1443, lon: 121.8083
+  },
+  {
+    id: 'fra-del', hub: 'FRA', hubFull: 'Frankfurt', dest: 'DEL', destFull: 'Delhi Indira Gandhi', country: 'India', region: 'Asia',
+    flightNum: 'LH 760 / LH 761', depTime: '22:05', depUTC: '21:05', arrTime: '09:45+1', arrUTC: '04:15',
+    depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)', duration: '7h 40m', durationMin: 460,
+    distance: '5994 km / 3724 mi', distanceKm: 5994,
+    status: 'seasonal', aircraft: ['D-AIHF','D-AIHN','D-AIHT'],
+    frequency: 'Selected dates 2024–2025', notes: 'A346 used on FRA–DEL on selected dates Oct 2024 – Mar 2025 per schedule data.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 28.5562, lon: 77.1000
+  },
+  {
+    id: 'fra-bog', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOG', destFull: 'Bogotá El Dorado', country: 'Colombia', region: 'South America',
+    flightNum: 'LH 502 / LH 503', depTime: '13:15', depUTC: '12:15', arrTime: '19:55', arrUTC: '00:55+1',
+    depTZ: 'CET (UTC+1)', arrTZ: 'COT (UTC-5)', duration: '12h 40m', durationMin: 760,
+    distance: '9533 km / 5925 mi', distanceKm: 9533,
+    status: 'retired', aircraft: ['D-AIHA','D-AIHB','D-AIHK'],
+    frequency: 'Until Mar 2024', notes: 'Retired March 2024 after ~10 years; replaced by A350-900.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 4.7016, lon: -74.1469
+  },
   {
     id: 'fra-yul', hub: 'FRA', hubFull: 'Frankfurt', dest: 'YUL', destFull: 'Montreal Trudeau', country: 'Canada', region: 'North America',
-    flightNum: 'LH 472', depTime: '11:50', depUTC: '10:50', arrTime: '14:00', arrUTC: '19:00',
+    flightNum: 'LH 472 / LH 473', depTime: '11:50', depUTC: '10:50', arrTime: '14:00', arrUTC: '19:00',
     depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 10m', durationMin: 550,
     distance: '6112 km / 3798 mi', distanceKm: 6112,
-    status: 'seasonal', aircraft: ['D-AIHT','D-AIHV'],
-    frequency: 'Oct–Dec 2024 / 2022', notes: 'Temporary deployment replacing B787',
+    status: 'retired', aircraft: ['D-AIHT','D-AIHV'],
+    frequency: 'Oct–Dec 2022/2024 only', notes: 'Temporary A346 deployment substituting B787.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 45.4706, lon: -73.7408
   },
   {
-    id: 'fra-bog', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOG', destFull: 'Bogotá El Dorado', country: 'Colombia', region: 'South America',
-    flightNum: 'LH 502', depTime: '13:15', depUTC: '12:15', arrTime: '19:55', arrUTC: '00:55+1',
-    depTZ: 'CET (UTC+1)', arrTZ: 'COT (UTC-5)', duration: '12h 40m', durationMin: 760,
-    distance: '9533 km / 5925 mi', distanceKm: 9533,
-    status: 'retired', aircraft: ['D-AIHA','D-AIHB','D-AIHK'],
-    frequency: 'Until Mar 2024', notes: 'Retired after March 2024; replaced by A350',
+    id: 'fra-muc-bom', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOM', destFull: 'Mumbai Chhatrapati Shivaji', country: 'India', region: 'Asia',
+    flightNum: 'LH 760', depTime: '21:55', depUTC: '20:55', arrTime: '09:30+1', arrUTC: '04:00',
+    depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)', duration: '8h 35m', durationMin: 515,
+    distance: '6261 km / 3890 mi', distanceKm: 6261,
+    status: 'retired', aircraft: ['D-AIHA','D-AIHB','D-AIHP'],
+    frequency: 'Pre-2019 (FRA); retired', notes: 'FRA–BOM served by A346 until MUC took over. MUC A346–BOM ran 2023–2024 (LH 766/767).',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 4.7016, lon: -74.1469
+    lat: 19.0896, lon: 72.8656
   },
-  // ─────────────────────────────────────────────
-  // MUNICH ROUTES (2023–2024, now retired)
-  // ─────────────────────────────────────────────
+
+  // ═══════════════════════════════════════════════════════════
+  // MUNICH A340-600 ROUTES (2004–Oct 26, 2024)
+  // ═══════════════════════════════════════════════════════════
   {
     id: 'muc-bos', hub: 'MUC', hubFull: 'Munich', dest: 'BOS', destFull: 'Boston Logan', country: 'USA', region: 'North America',
-    flightNum: 'LH 440', depTime: '11:05', depUTC: '10:05', arrTime: '13:10', arrUTC: '18:10',
+    flightNum: 'LH 440 / LH 441', depTime: '11:05', depUTC: '10:05', arrTime: '13:10', arrUTC: '18:10',
     depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 05m', durationMin: 545,
     distance: '6422 km / 3991 mi', distanceKm: 6422,
     status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHE'],
-    frequency: 'Until Oct 2024', notes: 'Munich A340-600 ops ended Oct 26, 2024',
+    frequency: '2019–Oct 2024', notes: 'Core MUC–US route. A346 ended at MUC Oct 26, 2024; replaced by A350.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 42.3656, lon: -71.0096
   },
   {
     id: 'muc-jfk', hub: 'MUC', hubFull: 'Munich', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
-    flightNum: 'LH 410', depTime: '10:40', depUTC: '09:40', arrTime: '13:30', arrUTC: '18:30',
+    flightNum: 'LH 410 / LH 411', depTime: '10:40', depUTC: '09:40', arrTime: '13:30', arrUTC: '18:30',
     depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 50m', durationMin: 590,
     distance: '6499 km / 4039 mi', distanceKm: 6499,
     status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHT'],
-    frequency: 'Until Oct 2024', notes: 'Munich A340-600 ops ended Oct 26, 2024',
+    frequency: '~2005–Oct 2024', notes: 'Long-standing MUC–JFK A346 connection ended Oct 2024.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 40.6413, lon: -73.7781
   },
   {
-    id: 'muc-lax', hub: 'MUC', hubFull: 'Munich', dest: 'LAX', destFull: 'Los Angeles International', country: 'USA', region: 'North America',
-    flightNum: 'LH 456', depTime: '11:55', depUTC: '10:55', arrTime: '14:10', arrUTC: '22:10',
-    depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)', duration: '12h 15m', durationMin: 735,
-    distance: '9380 km / 5828 mi', distanceKm: 9380,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHV'],
-    frequency: 'Until Oct 2024', notes: 'Munich A340-600 ops ended Oct 26, 2024',
+    id: 'muc-ewr', hub: 'MUC', hubFull: 'Munich', dest: 'EWR', destFull: 'New York Newark', country: 'USA', region: 'North America',
+    flightNum: 'LH 412 / LH 413', depTime: '10:30', depUTC: '09:30', arrTime: '13:15', arrUTC: '18:15',
+    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 45m', durationMin: 585,
+    distance: '6520 km / 4051 mi', distanceKm: 6520,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHT','D-AIHN'],
+    frequency: '~2004–2024', notes: 'Confirmed MUC–EWR A346 service; one of top-5 busiest A346 routes (Apr 2024 data).',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 33.9425, lon: -118.4081
+    lat: 40.6895, lon: -74.1745
   },
   {
     id: 'muc-iad', hub: 'MUC', hubFull: 'Munich', dest: 'IAD', destFull: 'Washington Dulles', country: 'USA', region: 'North America',
-    flightNum: 'LH 438', depTime: '10:50', depUTC: '09:50', arrTime: '13:50', arrUTC: '18:50',
+    flightNum: 'LH 438 / LH 439', depTime: '10:50', depUTC: '09:50', arrTime: '13:50', arrUTC: '18:50',
     depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '10h 00m', durationMin: 600,
     distance: '6934 km / 4309 mi', distanceKm: 6934,
-    status: 'retired', aircraft: ['D-AIHE','D-AIHT'],
-    frequency: 'Until Oct 2024', notes: 'Munich A340-600 ops ended Oct 26, 2024',
+    status: 'retired', aircraft: ['D-AIHE','D-AIHT','D-AIHV'],
+    frequency: '~2005–Oct 2024', notes: 'One of top-5 busiest A346 routes. A380 replaced it summers. Confirmed 13.4m weekly ASKs.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 38.9531, lon: -77.4565
   },
   {
     id: 'muc-ord', hub: 'MUC', hubFull: 'Munich', dest: 'ORD', destFull: "Chicago O'Hare", country: 'USA', region: 'North America',
-    flightNum: 'LH 434', depTime: '11:25', depUTC: '10:25', arrTime: '13:25', arrUTC: '19:25',
+    flightNum: 'LH 434 / LH 435', depTime: '11:25', depUTC: '10:25', arrTime: '13:25', arrUTC: '19:25',
     depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)', duration: '11h 00m', durationMin: 660,
     distance: '7919 km / 4922 mi', distanceKm: 7919,
-    status: 'retired', aircraft: ['D-AIHT','D-AIHV'],
-    frequency: 'Until Oct 2024', notes: 'Munich A340-600 ops ended Oct 26, 2024',
+    status: 'retired', aircraft: ['D-AIHT','D-AIHV','D-AIHU'],
+    frequency: '~2004–Oct 2024', notes: 'MUC–ORD A346 service ran regularly; confirmed in 2019 first-class route list.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 41.9742, lon: -87.9073
   },
   {
+    id: 'muc-lax', hub: 'MUC', hubFull: 'Munich', dest: 'LAX', destFull: 'Los Angeles International', country: 'USA', region: 'North America',
+    flightNum: 'LH 452 / LH 453', depTime: '11:55', depUTC: '10:55', arrTime: '14:10', arrUTC: '22:10',
+    depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)', duration: '12h 15m', durationMin: 735,
+    distance: '9380 km / 5828 mi', distanceKm: 9380,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHN'],
+    frequency: 'Until ~2018 (A380 took over)', notes: 'Review confirmed MUC–LAX on A346 until A380 displacement ~2018.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 33.9425, lon: -118.4081
+  },
+  {
     id: 'muc-sfo', hub: 'MUC', hubFull: 'Munich', dest: 'SFO', destFull: 'San Francisco International', country: 'USA', region: 'North America',
-    flightNum: 'LH 458', depTime: '13:20', depUTC: '12:20', arrTime: '15:40', arrUTC: '23:40',
+    flightNum: 'LH 458 / LH 459', depTime: '13:20', depUTC: '12:20', arrTime: '15:40', arrUTC: '23:40',
     depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)', duration: '12h 20m', durationMin: 740,
     distance: '9671 km / 6009 mi', distanceKm: 9671,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHN'],
-    frequency: 'Oct–Mar only (seasonal)', notes: 'Only operated in winter season from Munich',
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
+    frequency: 'Winter season only (~2004–2018)', notes: 'Oct–Mar only; displaced by A380/A350 from ~2018.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 37.6189, lon: -122.3750
   },
-  // ─────────────────────────────────────────────
-  // HISTORICAL ROUTES (pre-2022)
-  // ─────────────────────────────────────────────
+  {
+    id: 'muc-mex', hub: 'MUC', hubFull: 'Munich', dest: 'MEX', destFull: 'Mexico City Benito Juárez', country: 'Mexico', region: 'North America',
+    flightNum: 'LH 454 / LH 455', depTime: '12:30', depUTC: '11:30', arrTime: '17:10', arrUTC: '23:10',
+    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)', duration: '13h 40m', durationMin: 820,
+    distance: '10059 km / 6250 mi', distanceKm: 10059,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
+    frequency: 'Until ~2017', notes: 'Confirmed MUC–MEX A346 in 2019 first-class route data; A350/747 replaced.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 19.4363, lon: -99.0721
+  },
+  {
+    id: 'muc-pvg', hub: 'MUC', hubFull: 'Munich', dest: 'PVG', destFull: 'Shanghai Pudong', country: 'China', region: 'Asia',
+    flightNum: 'LH 728 / LH 729', depTime: '21:40', depUTC: '20:40', arrTime: '14:30+1', arrUTC: '06:30',
+    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC+8)', duration: '10h 50m', durationMin: 650,
+    distance: '9204 km / 5720 mi', distanceKm: 9204,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
+    frequency: '~2004–2019', notes: 'MUC–PVG confirmed in 2019 first-class A346 route list; later replaced by A350.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 31.1443, lon: 121.8083
+  },
+  {
+    id: 'muc-del', hub: 'MUC', hubFull: 'Munich', dest: 'DEL', destFull: 'Delhi Indira Gandhi', country: 'India', region: 'Asia',
+    flightNum: 'LH 762 / LH 763', depTime: '22:00', depUTC: '21:00', arrTime: '09:30+1', arrUTC: '04:00',
+    depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)', duration: '7h 30m', durationMin: 450,
+    distance: '5941 km / 3692 mi', distanceKm: 5941,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHE'],
+    frequency: '~2004–2024', notes: 'Confirmed MUC–DEL A346 in 2019; one of top-5 busiest MUC A346 routes (Apr 2024).',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 28.5562, lon: 77.1000
+  },
+  {
+    id: 'muc-bom', hub: 'MUC', hubFull: 'Munich', dest: 'BOM', destFull: 'Mumbai Chhatrapati Shivaji', country: 'India', region: 'Asia',
+    flightNum: 'LH 766 / LH 767', depTime: '21:30', depUTC: '20:30', arrTime: '08:00+1', arrUTC: '02:30',
+    depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)', duration: '8h 30m', durationMin: 510,
+    distance: '6572 km / 4084 mi', distanceKm: 6572,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHT'],
+    frequency: '2023–Oct 2024', notes: 'MUC–BOM confirmed A346 route; listed as one of the 5 busiest by ASK in Apr 2024.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 19.0896, lon: 72.8656
+  },
+  {
+    id: 'muc-yvr', hub: 'MUC', hubFull: 'Munich', dest: 'YVR', destFull: 'Vancouver International', country: 'Canada', region: 'North America',
+    flightNum: 'LH 492 / LH 493', depTime: '12:00', depUTC: '11:00', arrTime: '12:45', arrUTC: '20:45',
+    depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)', duration: '11h 45m', durationMin: 705,
+    distance: '8694 km / 5404 mi', distanceKm: 8694,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
+    frequency: '~2018–2020', notes: 'Confirmed MUC–YVR A346 in 2019 first-class list; displaced by A350.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 49.1967, lon: -123.1815
+  },
+  {
+    id: 'muc-gru', hub: 'MUC', hubFull: 'Munich', dest: 'GRU', destFull: 'São Paulo Guarulhos', country: 'Brazil', region: 'South America',
+    flightNum: 'LH 504 / LH 505', depTime: '22:00', depUTC: '21:00', arrTime: '06:20+1', arrUTC: '09:20',
+    depTZ: 'CET (UTC+1)', arrTZ: 'BRT (UTC-3)', duration: '12h 20m', durationMin: 740,
+    distance: '10213 km / 6346 mi', distanceKm: 10213,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHN'],
+    frequency: '~2008–2016 (MUC); FRA continued to 2022', notes: 'MUC–GRU A346 operated through ~2016. FRA–GRU also served by A346 until ~2022.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: -23.4356, lon: -46.4731
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // HISTORICAL FRANKFURT ROUTES (pre-2022)
+  // ═══════════════════════════════════════════════════════════
   {
     id: 'fra-gru', hub: 'FRA', hubFull: 'Frankfurt', dest: 'GRU', destFull: 'São Paulo Guarulhos', country: 'Brazil', region: 'South America',
-    flightNum: 'LH 502', depTime: '21:30', depUTC: '20:30', arrTime: '05:40+1', arrUTC: '08:40',
+    flightNum: 'LH 502 / LH 503', depTime: '21:30', depUTC: '20:30', arrTime: '05:40+1', arrUTC: '08:40',
     depTZ: 'CET (UTC+1)', arrTZ: 'BRT (UTC-3)', duration: '12h 10m', durationMin: 730,
     distance: '9984 km / 6204 mi', distanceKm: 9984,
     status: 'retired', aircraft: ['D-AIHO','D-AIHP','D-AIHA'],
-    frequency: 'Retired 2022', notes: 'Historical route; A346 served FRA–GRU until ~2022',
+    frequency: 'Until ~2022', notes: 'Long-standing FRA–GRU A346 service retired ~2022; replaced by 747-8.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: -23.4356, lon: -46.4731
   },
   {
     id: 'fra-yvr', hub: 'FRA', hubFull: 'Frankfurt', dest: 'YVR', destFull: 'Vancouver International', country: 'Canada', region: 'North America',
-    flightNum: 'LH 492', depTime: '12:15', depUTC: '11:15', arrTime: '13:00', arrUTC: '21:00',
+    flightNum: 'LH 492 / LH 493', depTime: '12:15', depUTC: '11:15', arrTime: '13:00', arrUTC: '21:00',
     depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)', duration: '11h 45m', durationMin: 705,
     distance: '8374 km / 5202 mi', distanceKm: 8374,
     status: 'retired', aircraft: ['D-AIHD','D-AIHE','D-AIHO'],
-    frequency: 'Historical (pre-2018)', notes: 'Vancouver was an early A346 destination',
+    frequency: 'Until ~2018', notes: 'FRA–YVR A346 confirmed in historical schedules; replaced by A350.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 49.1967, lon: -123.1815
   },
   {
     id: 'fra-sin', hub: 'FRA', hubFull: 'Frankfurt', dest: 'SIN', destFull: 'Singapore Changi', country: 'Singapore', region: 'Asia',
-    flightNum: 'LH 778', depTime: '21:25', depUTC: '20:25', arrTime: '16:00+1', arrUTC: '08:00',
+    flightNum: 'LH 778 / LH 779', depTime: '21:25', depUTC: '20:25', arrTime: '16:00+1', arrUTC: '08:00',
     depTZ: 'CET (UTC+1)', arrTZ: 'SGT (UTC+8)', duration: '12h 35m', durationMin: 755,
     distance: '10321 km / 6414 mi', distanceKm: 10321,
     status: 'retired', aircraft: ['D-AIHO','D-AIHP','D-AIHA'],
-    frequency: 'Historical (pre-2020)', notes: 'Long-haul A346 route to Asia, retired 2020',
+    frequency: 'Until ~2019', notes: 'FRA–SIN A346 confirmed in historical A340 schedules; replaced by A350/787.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 1.3644, lon: 103.9915
   },
   {
-    id: 'fra-bom', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOM', destFull: 'Mumbai Chhatrapati Shivaji', country: 'India', region: 'Asia',
-    flightNum: 'LH 760', depTime: '21:55', depUTC: '20:55', arrTime: '09:30+1', arrUTC: '04:00',
-    depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)', duration: '8h 35m', durationMin: 515,
-    distance: '6261 km / 3890 mi', distanceKm: 6261,
-    status: 'retired', aircraft: ['D-AIHA','D-AIHB','D-AIHP'],
-    frequency: 'Historical (2020–2023)', notes: 'Operated FRA–BOM during peak demand periods',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 19.0896, lon: 72.8656
-  },
-  {
     id: 'fra-dxb-auh', hub: 'FRA', hubFull: 'Frankfurt', dest: 'AUH', destFull: 'Abu Dhabi (via Dubai)', country: 'UAE', region: 'Middle East',
-    flightNum: 'LH 632', depTime: '09:30', depUTC: '08:30', arrTime: '20:40', arrUTC: '16:40',
+    flightNum: 'LH 632 / LH 633', depTime: '09:30', depUTC: '08:30', arrTime: '20:40', arrUTC: '16:40',
     depTZ: 'CET (UTC+1)', arrTZ: 'GST (UTC+4)', duration: '7h 10m + stop', durationMin: 430,
     distance: '5019 km / 3119 mi', distanceKm: 5019,
     status: 'retired', aircraft: ['D-AIHO','D-AIHP'],
-    frequency: 'Historical (pre-2010)', notes: 'Served FRA–DXB–AUH routing historically',
+    frequency: 'Historical (~2004–2012)', notes: 'FRA–DXB–AUH routing with A346 per historical schedule data.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: 24.4330, lon: 54.6511
   },
   {
-    id: 'fra-ruh', hub: 'FRA', hubFull: 'Frankfurt', dest: 'RUH', destFull: 'Riyadh King Khalid', country: 'Saudi Arabia', region: 'Middle East',
-    flightNum: 'LH 634', depTime: '09:50', depUTC: '08:50', arrTime: '17:40', arrUTC: '14:40',
-    depTZ: 'CET (UTC+1)', arrTZ: 'AST (UTC+3)', duration: '6h 50m', durationMin: 410,
-    distance: '4490 km / 2790 mi', distanceKm: 4490,
-    status: 'retired', aircraft: ['D-AIHB','D-AIHE','D-AIHO'],
-    frequency: 'Historical (various seasons)', notes: 'Standalone Riyadh service before DMM routing',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 24.9578, lon: 46.6989
-  },
-  {
-    id: 'fra-win-hre', hub: 'FRA', hubFull: 'Frankfurt', dest: 'HRE', destFull: 'Harare (via Windhoek)', country: 'Zimbabwe', region: 'Africa',
-    flightNum: 'LH 596', depTime: '21:25', depUTC: '20:25', arrTime: '10:40+1', arrUTC: '08:40',
+    id: 'fra-wdh-hre', hub: 'FRA', hubFull: 'Frankfurt', dest: 'HRE', destFull: 'Harare (via Windhoek)', country: 'Zimbabwe', region: 'Africa',
+    flightNum: 'LH 596 / LH 597', depTime: '21:25', depUTC: '20:25', arrTime: '10:40+1', arrUTC: '08:40',
     depTZ: 'CET (UTC+1)', arrTZ: 'CAT (UTC+2)', duration: '12h 15m + stop', durationMin: 735,
     distance: '10520 km / 6537 mi', distanceKm: 10520,
     status: 'retired', aircraft: ['D-AIHO','D-AIHP'],
-    frequency: 'Historical (pre-2010)', notes: 'Operated via Windhoek (WDH); Africa routing',
+    frequency: 'Historical (~2004–2010)', notes: 'FRA–WDH–HRE confirmed in historical A340 schedules.',
     configs: { first: 8, business: 44, premium: 32, economy: 213 },
     lat: -17.9318, lon: 31.0928
+  },
+  {
+    id: 'fra-sel', hub: 'FRA', hubFull: 'Frankfurt', dest: 'ICN', destFull: 'Seoul Incheon', country: 'South Korea', region: 'Asia',
+    flightNum: 'LH 718 / LH 719', depTime: '21:30', depUTC: '20:30', arrTime: '14:20+1', arrUTC: '05:20',
+    depTZ: 'CET (UTC+1)', arrTZ: 'KST (UTC+9)', duration: '11h 50m', durationMin: 710,
+    distance: '9047 km / 5623 mi', distanceKm: 9047,
+    status: 'retired', aircraft: ['D-AIHO','D-AIHP','D-AIHA'],
+    frequency: 'Historical (~2004–2012)', notes: 'FRA–SEL A346 listed in early historical A340 schedules.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 37.4691, lon: 126.4511
+  },
+  {
+    id: 'fra-ngo', hub: 'FRA', hubFull: 'Frankfurt', dest: 'NGO', destFull: 'Nagoya Chubu Centrair', country: 'Japan', region: 'Asia',
+    flightNum: 'LH 736 / LH 737', depTime: '21:35', depUTC: '20:35', arrTime: '15:30+1', arrUTC: '06:30',
+    depTZ: 'CET (UTC+1)', arrTZ: 'JST (UTC+9)', duration: '11h 55m', durationMin: 715,
+    distance: '9626 km / 5982 mi', distanceKm: 9626,
+    status: 'retired', aircraft: ['D-AIHO','D-AIHP'],
+    frequency: 'Historical (~2005–2012)', notes: 'FRA–NGO A346 confirmed in historical schedules.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 },
+    lat: 34.8583, lon: 136.8050
   },
 ];
 
