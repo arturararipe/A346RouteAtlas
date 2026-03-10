@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lufthansa A340-600 Route Atlas</title>
+<title>A340-600 Global Route Atlas</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap');
 
@@ -890,8 +890,80 @@
   ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(201,168,76,0.5); }
 
-  /* RESPONSIVE */
+  /* AIRLINE SELECTOR BAR */
+  .airline-bar {
+    background: var(--dark);
+    border-bottom: 1px solid rgba(201,168,76,0.25);
+    padding: 0 48px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .airline-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    bottom: -1px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .airline-btn:hover .airline-btn-name { opacity: 1; }
+  .airline-btn.active { border-bottom-color: var(--airline-color, var(--gold)); }
+  .airline-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--airline-color, var(--gold));
+    flex-shrink: 0;
+    box-shadow: 0 0 8px var(--airline-color, var(--gold));
+  }
+  .airline-btn-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    transition: color 0.2s;
+  }
+  .airline-btn.active .airline-btn-name { color: var(--airline-color, var(--gold)); }
+  .airline-btn-iata {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--airline-color, var(--gold));
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+  .airline-btn.active .airline-btn-iata { opacity: 1; }
+  .airline-all-dot {
+    font-size: 14px;
+  }
+
+  /* Airline color overrides on rows */
+  .airline-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .at-LH { color: #4A90D9; border-color: rgba(74,144,217,0.3); background: rgba(74,144,217,0.08); }
+  .at-VS { color: #E8365D; border-color: rgba(232,54,93,0.3); background: rgba(232,54,93,0.08); }
+  .at-CX { color: #00A89C; border-color: rgba(0,168,156,0.3); background: rgba(0,168,156,0.08); }
+  .at-SA { color: #F5A623; border-color: rgba(245,166,35,0.3); background: rgba(245,166,35,0.08); }
+  .at-IB { color: #D4222A; border-color: rgba(212,34,42,0.3); background: rgba(212,34,42,0.08); }
+
   @media (max-width: 900px) {
+    .airline-bar { padding: 0 16px; }
     .header-inner { padding: 20px 24px; }
     .header-stats { display: none; }
     .nav-tabs, .filters-bar, .main { padding-left: 24px; padding-right: 24px; }
@@ -899,7 +971,6 @@
     .fleet-grid { grid-template-columns: 1fr; }
   }
 
-  /* OVERLAY for panel */
   .panel-overlay {
     display: none;
     position: fixed;
@@ -937,11 +1008,11 @@
   <div class="header-bg"></div>
   <div class="header-inner">
     <div class="logo-area">
-      <div class="crane-icon">🦅</div>
+      <div class="crane-icon">✈</div>
       <div class="brand-text">
-        <div class="brand-lh">Deutsche Lufthansa AG</div>
+        <div class="brand-lh">Global Fleet Archive</div>
         <div class="brand-title">A340-600 Route Atlas</div>
-        <div class="brand-sub">Frankfurt · Munich · Global Operations</div>
+        <div class="brand-sub">Lufthansa · Virgin Atlantic · Cathay Pacific · South African · Iberia</div>
       </div>
     </div>
     <div class="header-stats">
@@ -950,12 +1021,12 @@
         <span class="stat-label">Routes</span>
       </div>
       <div class="stat">
-        <span class="stat-value" id="stat-aircraft">5</span>
+        <span class="stat-value" id="stat-aircraft">—</span>
         <span class="stat-label">Aircraft</span>
       </div>
       <div class="stat">
-        <span class="stat-value">2002</span>
-        <span class="stat-label">Entry Service</span>
+        <span class="stat-value">5</span>
+        <span class="stat-label">Airlines</span>
       </div>
       <div class="stat">
         <span class="stat-value">75.3m</span>
@@ -966,6 +1037,39 @@
   <div class="header-divider"></div>
 </header>
 
+<!-- AIRLINE SELECTOR -->
+<div class="airline-bar" id="airlineBar">
+  <button class="airline-btn active" onclick="selectAirline('all', this)" style="--airline-color:#C9A84C">
+    <span class="airline-all-dot">🌐</span>
+    <span class="airline-btn-name">All Airlines</span>
+  </button>
+  <button class="airline-btn" onclick="selectAirline('LH', this)" style="--airline-color:#4A90D9">
+    <span class="airline-dot" style="background:#4A90D9;box-shadow:0 0 8px #4A90D9"></span>
+    <span class="airline-btn-iata" style="color:#4A90D9">LH</span>
+    <span class="airline-btn-name">Lufthansa</span>
+  </button>
+  <button class="airline-btn" onclick="selectAirline('VS', this)" style="--airline-color:#E8365D">
+    <span class="airline-dot" style="background:#E8365D;box-shadow:0 0 8px #E8365D"></span>
+    <span class="airline-btn-iata" style="color:#E8365D">VS</span>
+    <span class="airline-btn-name">Virgin Atlantic</span>
+  </button>
+  <button class="airline-btn" onclick="selectAirline('CX', this)" style="--airline-color:#00A89C">
+    <span class="airline-dot" style="background:#00A89C;box-shadow:0 0 8px #00A89C"></span>
+    <span class="airline-btn-iata" style="color:#00A89C">CX</span>
+    <span class="airline-btn-name">Cathay Pacific</span>
+  </button>
+  <button class="airline-btn" onclick="selectAirline('SA', this)" style="--airline-color:#F5A623">
+    <span class="airline-dot" style="background:#F5A623;box-shadow:0 0 8px #F5A623"></span>
+    <span class="airline-btn-iata" style="color:#F5A623">SA</span>
+    <span class="airline-btn-name">South African</span>
+  </button>
+  <button class="airline-btn" onclick="selectAirline('IB', this)" style="--airline-color:#D4222A">
+    <span class="airline-dot" style="background:#D4222A;box-shadow:0 0 8px #D4222A"></span>
+    <span class="airline-btn-iata" style="color:#D4222A">IB</span>
+    <span class="airline-btn-name">Iberia</span>
+  </button>
+</div>
+
 <nav class="nav-tabs">
   <button class="tab-btn active" onclick="switchView('routes', this)">Routes</button>
   <button class="tab-btn" onclick="switchView('map', this)">World Map</button>
@@ -974,12 +1078,6 @@
 </nav>
 
 <div class="filters-bar">
-  <div class="filter-group">
-    <span class="filter-label">Hub</span>
-    <button class="filter-btn active" onclick="setFilter('hub', 'all', this)">All</button>
-    <button class="filter-btn" onclick="setFilter('hub', 'FRA', this)">Frankfurt</button>
-    <button class="filter-btn" onclick="setFilter('hub', 'MUC', this)">Munich</button>
-  </div>
   <div class="filter-group">
     <span class="filter-label">Status</span>
     <button class="filter-btn active" onclick="setFilter('status', 'all', this)">All</button>
@@ -995,9 +1093,10 @@
     <button class="filter-btn" onclick="setFilter('region', 'Asia', this)">Asia</button>
     <button class="filter-btn" onclick="setFilter('region', 'Middle East', this)">M. East</button>
     <button class="filter-btn" onclick="setFilter('region', 'Africa', this)">Africa</button>
+    <button class="filter-btn" onclick="setFilter('region', 'Europe', this)">Europe</button>
   </div>
   <div class="search-box">
-    <input class="search-input" type="text" placeholder="Search destination, code…" oninput="setSearch(this.value)" id="searchInput">
+    <input class="search-input" type="text" placeholder="Search destination, flight, hub…" oninput="setSearch(this.value)" id="searchInput">
   </div>
 </div>
 
@@ -1010,6 +1109,7 @@
       <table id="routeTable">
         <thead>
           <tr>
+            <th onclick="sortBy('airline')">Airline <span class="sort-icon">↕</span></th>
             <th onclick="sortBy('flightNum')">Flight <span class="sort-icon">↕</span></th>
             <th onclick="sortBy('hub')">Hub <span class="sort-icon">↕</span></th>
             <th onclick="sortBy('destination')">Destination <span class="sort-icon">↕</span></th>
@@ -1034,9 +1134,12 @@
       </div>
       <div class="map-legend">
         <div class="legend-item"><div class="legend-line active"></div> Active Routes</div>
-        <div class="legend-item"><div class="legend-line seasonal" style="background:#6AB4E8;border-top:1px dashed #6AB4E8;background:none;border-bottom:none;border-left:none;border-right:none;height:0;border-top-width:2px"></div> Seasonal</div>
-        <div class="legend-item"><div class="legend-line retired" style="background:#444;"></div> Retired / Historical</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--gold);border-radius:50%"></div> Frankfurt / Munich</div>
+        <div class="legend-item"><div style="width:24px;height:0;border-top:1px dashed rgba(255,255,255,0.3)"></div> Retired / Historical</div>
+        <div class="legend-item"><span class="airline-tag at-LH" style="font-size:8px;padding:1px 5px">LH</span> Lufthansa</div>
+        <div class="legend-item"><span class="airline-tag at-VS" style="font-size:8px;padding:1px 5px">VS</span> Virgin Atlantic</div>
+        <div class="legend-item"><span class="airline-tag at-CX" style="font-size:8px;padding:1px 5px">CX</span> Cathay Pacific</div>
+        <div class="legend-item"><span class="airline-tag at-SA" style="font-size:8px;padding:1px 5px">SA</span> South African</div>
+        <div class="legend-item"><span class="airline-tag at-IB" style="font-size:8px;padding:1px 5px">IB</span> Iberia</div>
       </div>
       <div class="map-tooltip" id="mapTooltip">
         <div class="map-tooltip-city" id="tt-city"></div>
@@ -1072,375 +1175,533 @@
 // DATA
 // ============================================================
 
-const AIRCRAFT = [
-  // ── ACTIVE FLEET (as of March 2026) ──────────────────────
-  { reg: 'D-AIHF', msn: '543', name: 'Lübeck', delivered: '2004-04', status: 'active', base: 'FRA', cycles: 9850 },
-  { reg: 'D-AIHW', msn: '972', name: 'Freiburg im Breisgau', delivered: '2008-06', status: 'active', base: 'FRA', cycles: 7640 },
-  { reg: 'D-AIHX', msn: '981', name: 'Halle (Saale)', delivered: '2009-01', status: 'active', base: 'FRA', cycles: 7480 },
-  { reg: 'D-AIHY', msn: '987', name: 'Heilbronn', delivered: '2009-03', status: 'active', base: 'FRA', cycles: 7310 },
-  { reg: 'D-AIHZ', msn: '1005', name: 'Leipzig', delivered: '2009-07', status: 'active', base: 'FRA', cycles: 7090 },
-  // ── STORED / WITHDRAWN (2025) ─────────────────────────────
-  { reg: 'D-AIHI', msn: '569', name: 'Mönchengladbach', delivered: '2004-09', status: 'stored', base: 'TRL', cycles: 9600 },
-  { reg: 'D-AIHP', msn: '771', name: 'Pforzheim', delivered: '2006-08', status: 'stored', base: 'TRL', cycles: 8540 },
-  { reg: 'D-AIHT', msn: '846', name: 'Regensburg', delivered: '2008-03', status: 'stored', base: 'TRL', cycles: 8200 },
-  { reg: 'D-AIHU', msn: '848', name: 'Saarbrücken', delivered: '2008-04', status: 'stored', base: 'TRL', cycles: 8170 },
-  { reg: 'D-AIHV', msn: '897', name: 'Hamm', delivered: '2008-10', status: 'stored', base: 'TRL', cycles: 7980 },
-  // ── SCRAPPED / RETIRED (historical) ─────────────────────
-  { reg: 'D-AIHA', msn: '516', name: 'Bremerhaven', delivered: '2003-03', status: 'retired', base: 'SCRAPPED', cycles: 10200 },
-  { reg: 'D-AIHB', msn: '517', name: 'Bremerhaven', delivered: '2003-11', status: 'retired', base: 'SCRAPPED', cycles: 10080 },
-  { reg: 'D-AIHC', msn: '523', name: 'Wolfsburg', delivered: '2003-12', status: 'retired', base: 'SCRAPPED', cycles: 9970 },
-  { reg: 'D-AIHD', msn: '537', name: 'Leverkusen', delivered: '2004-02', status: 'retired', base: 'SCRAPPED', cycles: 9870 },
-  { reg: 'D-AIHE', msn: '540', name: 'Leverkusen', delivered: '2004-03', status: 'retired', base: 'SCRAPPED', cycles: 9760 },
-  { reg: 'D-AIHK', msn: '641', name: 'Mainz', delivered: '2006-06', status: 'retired', base: 'SCRAPPED', cycles: 8920 },
-  { reg: 'D-AIHL', msn: '646', name: 'Gelsenkirchen', delivered: '2006-09', status: 'retired', base: 'SCRAPPED', cycles: 8780 },
-  { reg: 'D-AIHM', msn: '705', name: 'Augsburg', delivered: '2007-09', status: 'retired', base: 'SCRAPPED', cycles: 8340 },
-  { reg: 'D-AIHN', msn: '715', name: 'Ludwigshafen am Rhein', delivered: '2007-12', status: 'retired', base: 'SCRAPPED', cycles: 8210 },
-  { reg: 'D-AIHO', msn: '547', name: 'Offenbach am Main', delivered: '2004-07', status: 'retired', base: 'SCRAPPED', cycles: 9700 },
+// (data moved to ALL_AIRCRAFT below)
+
+
+// ============================================================
+// MULTI-AIRLINE DATA
+// ============================================================
+
+const AIRLINES = {
+  LH: { name: 'Lufthansa', country: 'Germany', hub: 'FRA/MUC', color: '#4A90D9', retired: false, retiredYear: null, note: '5 A346s active as of Mar 2026; final retirement Oct 25, 2026' },
+  VS: { name: 'Virgin Atlantic', country: 'United Kingdom', hub: 'LHR', color: '#E8365D', retired: true, retiredYear: 2020, note: 'Final A340-600 flight: Mar 8, 2020 (LOS→LHR). 19 frames operated total.' },
+  CX: { name: 'Cathay Pacific', country: 'Hong Kong', hub: 'HKG', color: '#00A89C', retired: true, retiredYear: 2008, note: '3 frames only (B-HQA/B/C). All transferred to Hainan Airlines Sep–Oct 2008.' },
+  SA: { name: 'South African Airways', country: 'South Africa', hub: 'JNB', color: '#F5A623', retired: true, retiredYear: 2021, note: '9 frames operated. All A346s retired 2020–2021 due to COVID-19 & restructuring.' },
+  IB: { name: 'Iberia', country: 'Spain', hub: 'MAD', color: '#D4222A', retired: true, retiredYear: 2020, note: '18 A346s operated 2003–2020. All retired early mid-2020 due to COVID-19.' },
+};
+
+const ALL_AIRCRAFT = [
+  // ── LUFTHANSA (LH) ────────────────────────────────────────
+  { reg: 'D-AIHF', airline: 'LH', msn: '543', name: 'Lübeck', delivered: '2004-04', status: 'active', base: 'FRA' },
+  { reg: 'D-AIHW', airline: 'LH', msn: '972', name: 'Freiburg im Breisgau', delivered: '2008-06', status: 'active', base: 'FRA' },
+  { reg: 'D-AIHX', airline: 'LH', msn: '981', name: 'Halle (Saale)', delivered: '2009-01', status: 'active', base: 'FRA' },
+  { reg: 'D-AIHY', airline: 'LH', msn: '987', name: 'Heilbronn', delivered: '2009-03', status: 'active', base: 'FRA' },
+  { reg: 'D-AIHZ', airline: 'LH', msn: '1005', name: 'Leipzig', delivered: '2009-07', status: 'active', base: 'FRA' },
+  { reg: 'D-AIHI', airline: 'LH', msn: '569', name: 'Mönchengladbach', delivered: '2004-09', status: 'stored', base: 'TRL' },
+  { reg: 'D-AIHP', airline: 'LH', msn: '771', name: 'Pforzheim', delivered: '2006-08', status: 'stored', base: 'TRL' },
+  { reg: 'D-AIHT', airline: 'LH', msn: '846', name: 'Regensburg', delivered: '2008-03', status: 'stored', base: 'TRL' },
+  { reg: 'D-AIHU', airline: 'LH', msn: '848', name: 'Saarbrücken', delivered: '2008-04', status: 'stored', base: 'TRL' },
+  { reg: 'D-AIHV', airline: 'LH', msn: '897', name: 'Hamm', delivered: '2008-10', status: 'stored', base: 'TRL' },
+  { reg: 'D-AIHA', airline: 'LH', msn: '516', name: 'Bremerhaven', delivered: '2003-03', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'D-AIHB', airline: 'LH', msn: '517', name: 'Bremerhaven', delivered: '2003-11', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'D-AIHC', airline: 'LH', msn: '523', name: 'Wolfsburg', delivered: '2003-12', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'D-AIHD', airline: 'LH', msn: '537', name: 'Leverkusen', delivered: '2004-02', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'D-AIHE', airline: 'LH', msn: '540', name: 'Leverkusen', delivered: '2004-03', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'D-AIHK', airline: 'LH', msn: '641', name: 'Mainz', delivered: '2006-06', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'D-AIHL', airline: 'LH', msn: '646', name: 'Gelsenkirchen', delivered: '2006-09', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'D-AIHM', airline: 'LH', msn: '705', name: 'Augsburg', delivered: '2007-09', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'D-AIHN', airline: 'LH', msn: '715', name: 'Ludwigshafen am Rhein', delivered: '2007-12', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'D-AIHO', airline: 'LH', msn: '547', name: 'Offenbach am Main', delivered: '2004-07', status: 'retired', base: 'SCRAPPED' },
+  // ── VIRGIN ATLANTIC (VS) ──────────────────────────────────
+  { reg: 'G-VATL', airline: 'VS', msn: '376', name: 'Miss Kitty', delivered: '2002-08', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VGOA', airline: 'VS', msn: '371', name: 'Maiden Voyager', delivered: '2002-07', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VEIL', airline: 'VS', msn: '388', name: 'Queen of the Skies', delivered: '2002-11', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VSHY', airline: 'VS', msn: '406', name: 'China Girl', delivered: '2003-02', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VMEG', airline: 'VS', msn: '421', name: 'Varga Girl', delivered: '2003-05', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VGAS', airline: 'VS', msn: '437', name: 'Varga Girl (2nd)', delivered: '2003-09', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VSSH', airline: 'VS', msn: '449', name: 'Bubbles', delivered: '2004-01', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VBLU', airline: 'VS', msn: '466', name: 'Lady Luck (early)', delivered: '2004-06', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VFIZ', airline: 'VS', msn: '480', name: 'Emmeline Heaney', delivered: '2004-10', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VFOX', airline: 'VS', msn: '497', name: 'Lady Bird', delivered: '2005-01', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VOGE', airline: 'VS', msn: '533', name: 'Dancing Queen', delivered: '2005-07', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VWKD', airline: 'VS', msn: '555', name: 'Surfer Girl', delivered: '2006-01', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VBUG', airline: 'VS', msn: '584', name: 'Ladybird', delivered: '2006-06', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VWIN', airline: 'VS', msn: '736', name: 'Lady Luck', delivered: '2006-08', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VYOU', airline: 'VS', msn: '765', name: 'Emmeline Heaney', delivered: '2007-04', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VRED', airline: 'VS', msn: '768', name: 'Scarlet Lady', delivered: '2007-05', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VWEB', airline: 'VS', msn: '794', name: 'Surfer Girl', delivered: '2007-10', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'G-VFIT', airline: 'VS', msn: '753', name: 'Dancing Queen', delivered: '2007-03', status: 'retired', base: 'TRAINING' },
+  { reg: 'G-VNAP', airline: 'VS', msn: '622', name: 'Sleeping Beauty Rejuvenated', delivered: '2005-11', status: 'retired', base: 'SCRAPPED' },
+  // ── CATHAY PACIFIC (CX) ───────────────────────────────────
+  { reg: 'B-HQA', airline: 'CX', msn: '436', name: '—', delivered: '2002-11', status: 'retired', base: 'Hainan/SCRAPPED' },
+  { reg: 'B-HQB', airline: 'CX', msn: '453', name: '—', delivered: '2002-12', status: 'retired', base: 'Hainan/SCRAPPED' },
+  { reg: 'B-HQC', airline: 'CX', msn: '475', name: '—', delivered: '2003-06', status: 'retired', base: 'Hainan/SCRAPPED' },
+  // ── SOUTH AFRICAN AIRWAYS (SA) ────────────────────────────
+  { reg: 'ZS-SNA', airline: 'SA', msn: '410', name: '—', delivered: '2002-12', status: 'retired', base: 'STORED' },
+  { reg: 'ZS-SNB', airline: 'SA', msn: '417', name: '—', delivered: '2002-12', status: 'retired', base: 'STORED' },
+  { reg: 'ZS-SNC', airline: 'SA', msn: '426', name: '— (Star Alliance livery)', delivered: '2003-02', status: 'retired', base: 'STORED' },
+  { reg: 'ZS-SND', airline: 'SA', msn: '443', name: '—', delivered: '2003-07', status: 'retired', base: 'STORED' },
+  { reg: 'ZS-SNE', airline: 'SA', msn: '470', name: '—', delivered: '2004-03', status: 'retired', base: 'STORED' },
+  { reg: 'ZS-SNF', airline: 'SA', msn: '519', name: '—', delivered: '2005-03', status: 'retired', base: 'STORED' },
+  { reg: 'ZS-SNG', airline: 'SA', msn: '557', name: '—', delivered: '2006-02', status: 'retired', base: 'STORED' },
+  { reg: 'ZS-SNH', airline: 'SA', msn: '626', name: '—', delivered: '2006-07', status: 'retired', base: 'STORED' },
+  { reg: 'ZS-SNI', airline: 'SA', msn: '647', name: '—', delivered: '2006-11', status: 'retired', base: 'STORED' },
+  // ── IBERIA (IB) ───────────────────────────────────────────
+  { reg: 'EC-IQR', airline: 'IB', msn: '434', name: 'Gaudí', delivered: '2003-03', status: 'retired', base: 'STORED/CDT' },
+  { reg: 'EC-IZY', airline: 'IB', msn: '457', name: 'Ignacio de Zuloaga', delivered: '2003-08', status: 'retired', base: 'STORED' },
+  { reg: 'EC-JBA', airline: 'IB', msn: '487', name: 'Joaquín Rodrigo', delivered: '2004-11', status: 'retired', base: 'STORED/CQM' },
+  { reg: 'EC-JCY', airline: 'IB', msn: '496', name: 'Andrés Segovia', delivered: '2005-01', status: 'retired', base: 'SCRAPPED/TEV' },
+  { reg: 'EC-JCZ', airline: 'IB', msn: '502', name: 'Vicente Aleixandre', delivered: '2005-02', status: 'retired', base: 'STORED/TEV' },
+  { reg: 'EC-JFX', airline: 'IB', msn: '518', name: 'Jacinto Benavente', delivered: '2005-06', status: 'retired', base: 'STORED/TEV' },
+  { reg: 'EC-JLE', airline: 'IB', msn: '525', name: 'Santiago Ramón y Cajal', delivered: '2005-10', status: 'retired', base: 'STORED/CDT' },
+  { reg: 'EC-JNQ', airline: 'IB', msn: '544', name: 'Antonio Machado', delivered: '2006-02', status: 'retired', base: 'STORED/CQM' },
+  { reg: 'EC-JOH', airline: 'IB', msn: '547', name: 'Salvador Dalí', delivered: '2006-03', status: 'retired', base: 'SCRAPPED' },
+  { reg: 'EC-JPU', airline: 'IB', msn: '573', name: 'Pío Baroja', delivered: '2006-07', status: 'retired', base: 'STORED' },
+  { reg: 'EC-KZI', airline: 'IB', msn: '731', name: 'Miguel Hernández', delivered: '2008-06', status: 'retired', base: 'STORED' },
+  { reg: 'EC-LCZ', airline: 'IB', msn: '748', name: 'Miguel Servet', delivered: '2008-09', status: 'retired', base: 'STORED' },
+  { reg: 'EC-LEU', airline: 'IB', msn: '756', name: 'Río Amazonas', delivered: '2008-10', status: 'retired', base: 'STORED' },
+  { reg: 'EC-LEV', airline: 'IB', msn: '762', name: 'Isaac Albéniz', delivered: '2008-11', status: 'retired', base: 'STORED' },
+  { reg: 'EC-LFS', airline: 'IB', msn: '803', name: 'Ciudad de México', delivered: '2009-04', status: 'retired', base: 'STORED' },
 ];
 
-const ROUTES = [
+// Keep AIRCRAFT as alias pointing to all aircraft for backward compat in openPanel
+const AIRCRAFT = ALL_AIRCRAFT;
 
-  // ═══════════════════════════════════════════════════════════
-  // ACTIVE — FRANKFURT (2025–2026)
-  // ═══════════════════════════════════════════════════════════
-  {
-    id: 'fra-bos', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOS', destFull: 'Boston Logan', country: 'USA', region: 'North America',
-    flightNum: 'LH 424 / LH 425', depTime: '13:10', depUTC: '12:10', arrTime: '15:25', arrUTC: '19:25',
-    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 15m', durationMin: 555,
-    distance: '6108 km / 3796 mi', distanceKm: 6108,
+const ALL_ROUTES = [
+
+  // ════════════════════════════════════════════════════════════════════════
+  // LUFTHANSA (LH)
+  // ════════════════════════════════════════════════════════════════════════
+
+  // ── ACTIVE FRA (2025–2026) ───────────────────────────────────────────
+  { id: 'lh-fra-bos', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOS', destFull: 'Boston Logan', country: 'USA', region: 'North America',
+    flightNum: 'LH 424/425', depTime: '13:10', depUTC: '12:10', arrTime: '15:25', arrUTC: '19:25', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 15m', durationMin: 555, distance: '6108 km / 3796 mi', distanceKm: 6108,
     status: 'active', aircraft: ['D-AIHF','D-AIHW','D-AIHY'],
-    frequency: 'Daily (through Jun 2026)', notes: 'Busiest A346 route Oct 2025 (~55 flights/mo). Boeing 787 delays extended ops.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 42.3656, lon: -71.0096
-  },
-  {
-    id: 'fra-jfk', hub: 'FRA', hubFull: 'Frankfurt', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
-    flightNum: 'LH 400 / LH 401', depTime: '10:20', depUTC: '09:20', arrTime: '12:50', arrUTC: '17:50',
-    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 30m', durationMin: 570,
-    distance: '6194 km / 3849 mi', distanceKm: 6194,
+    frequency: 'Daily through Jun 2026', notes: 'Busiest active A346 route (Oct 2025). 787 delays extended ops.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 42.3656, lon: -71.0096 },
+  { id: 'lh-fra-jfk', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
+    flightNum: 'LH 400/401', depTime: '10:20', depUTC: '09:20', arrTime: '12:50', arrUTC: '17:50', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 30m', durationMin: 570, distance: '6194 km / 3849 mi', distanceKm: 6194,
     status: 'active', aircraft: ['D-AIHX','D-AIHZ','D-AIHF'],
-    frequency: 'Daily (reduced Jan 2026)', notes: 'D-AIHZ confirmed FRA–JFK Jun 2025. Reduced to 7 weekly Jan 13–Feb 14, 2026.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 40.6413, lon: -73.7781
-  },
-  {
-    id: 'fra-dtw', hub: 'FRA', hubFull: 'Frankfurt', dest: 'DTW', destFull: 'Detroit Metropolitan', country: 'USA', region: 'North America',
-    flightNum: 'LH 442 / LH 443', depTime: '11:05', depUTC: '10:05', arrTime: '13:35', arrUTC: '18:35',
-    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 30m', durationMin: 570,
-    distance: '6922 km / 4302 mi', distanceKm: 6922,
+    frequency: 'Daily (7x reduced Jan 2026)', notes: 'D-AIHZ confirmed FRA–JFK Jun 2025.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 40.6413, lon: -73.7781 },
+  { id: 'lh-fra-dtw', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'DTW', destFull: 'Detroit Metropolitan', country: 'USA', region: 'North America',
+    flightNum: 'LH 442/443', depTime: '11:05', depUTC: '10:05', arrTime: '13:35', arrUTC: '18:35', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 30m', durationMin: 570, distance: '6922 km / 4302 mi', distanceKm: 6922,
     status: 'active', aircraft: ['D-AIHY','D-AIHZ'],
-    frequency: 'Daily (gaps Jan–Feb 2026)', notes: 'First class cabin not sold on this route; business highest available.',
-    configs: { first: 0, business: 44, premium: 32, economy: 213 },
-    lat: 42.2124, lon: -83.3534
-  },
-  {
-    id: 'fra-ruh', hub: 'FRA', hubFull: 'Frankfurt', dest: 'RUH', destFull: 'Riyadh King Khalid', country: 'Saudi Arabia', region: 'Middle East',
-    flightNum: 'LH 622 / LH 623', depTime: '09:50', depUTC: '08:50', arrTime: '17:40', arrUTC: '14:40',
-    depTZ: 'CET (UTC+1)', arrTZ: 'AST (UTC+3)', duration: '6h 50m', durationMin: 410,
-    distance: '4490 km / 2790 mi', distanceKm: 4490,
+    frequency: 'Daily', notes: 'First class cabin not sold on this route.',
+    configs: { first: 0, business: 44, premium: 32, economy: 213 }, lat: 42.2124, lon: -83.3534 },
+  { id: 'lh-fra-ruh', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'RUH', destFull: 'Riyadh King Khalid', country: 'Saudi Arabia', region: 'Middle East',
+    flightNum: 'LH 622/623', depTime: '09:50', depUTC: '08:50', arrTime: '17:40', arrUTC: '14:40', depTZ: 'CET (UTC+1)', arrTZ: 'AST (UTC+3)',
+    duration: '6h 50m', durationMin: 410, distance: '4490 km / 2790 mi', distanceKm: 4490,
     status: 'active', aircraft: ['D-AIHW','D-AIHY','D-AIHZ'],
-    frequency: 'Daily; continues via DMM (seasonal)', notes: 'D-AIHZ confirmed RUH–FRA Dec 2025. LH622 continues to Dammam (DMM) seasonally. Final scheduled A346 op: Oct 25, 2026 on this route.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 24.9578, lon: 46.6989
-  },
+    frequency: 'Daily; continues to DMM seasonally', notes: 'Final scheduled A346 op: Oct 25, 2026 on RUH–FRA.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 24.9578, lon: 46.6989 },
 
-  // ═══════════════════════════════════════════════════════════
-  // RECENT FRANKFURT ROUTES (2022–2025, now retired/replaced)
-  // ═══════════════════════════════════════════════════════════
-  {
-    id: 'fra-ord', hub: 'FRA', hubFull: 'Frankfurt', dest: 'ORD', destFull: "Chicago O'Hare", country: 'USA', region: 'North America',
-    flightNum: 'LH 430 / LH 431', depTime: '11:30', depUTC: '10:30', arrTime: '13:30', arrUTC: '19:30',
-    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)', duration: '10h 00m', durationMin: 600,
-    distance: '7585 km / 4713 mi', distanceKm: 7585,
+  // ── SEASONAL/RECENT FRA ──────────────────────────────────────────────
+  { id: 'lh-fra-ord', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'ORD', destFull: "Chicago O'Hare", country: 'USA', region: 'North America',
+    flightNum: 'LH 430/431', depTime: '11:30', depUTC: '10:30', arrTime: '13:30', arrUTC: '19:30', depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)',
+    duration: '10h 00m', durationMin: 600, distance: '7585 km / 4713 mi', distanceKm: 7585,
     status: 'seasonal', aircraft: ['D-AIHF','D-AIHW','D-AIHT'],
-    frequency: 'Until Jan 31; resumes Mar 20 annually', notes: 'A346 served FRA–ORD through early 2026 winter; suspended Feb–Mar gap each year.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 41.9742, lon: -87.9073
-  },
-  {
-    id: 'fra-iad', hub: 'FRA', hubFull: 'Frankfurt', dest: 'IAD', destFull: 'Washington Dulles', country: 'USA', region: 'North America',
-    flightNum: 'LH 418 / LH 419', depTime: '10:45', depUTC: '09:45', arrTime: '13:40', arrUTC: '18:40',
-    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 55m', durationMin: 595,
-    distance: '6902 km / 4289 mi', distanceKm: 6902,
+    frequency: 'Until Jan 31; resumes Mar 20', notes: 'A346 served FRA–ORD through early 2026 winter.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 41.9742, lon: -87.9073 },
+  { id: 'lh-fra-iad', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'IAD', destFull: 'Washington Dulles', country: 'USA', region: 'North America',
+    flightNum: 'LH 418/419', depTime: '10:45', depUTC: '09:45', arrTime: '13:40', arrUTC: '18:40', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 55m', durationMin: 595, distance: '6902 km / 4289 mi', distanceKm: 6902,
     status: 'seasonal', aircraft: ['D-AIHF','D-AIHY','D-AIHT'],
-    frequency: 'Seasonal; A346 Apr–Oct 2024/2025', notes: 'Confirmed A346-600 in Apr 2024 (12.9m weekly ASKs). A380 takes over summers from MUC.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 38.9531, lon: -77.4565
-  },
-  {
-    id: 'fra-hkg', hub: 'FRA', hubFull: 'Frankfurt', dest: 'HKG', destFull: 'Hong Kong International', country: 'Hong Kong', region: 'Asia',
-    flightNum: 'LH 796 / LH 797', depTime: '21:25', depUTC: '20:25', arrTime: '16:15+1', arrUTC: '08:15',
-    depTZ: 'CET (UTC+1)', arrTZ: 'HKT (UTC+8)', duration: '11h 50m', durationMin: 710,
-    distance: '9169 km / 5699 mi', distanceKm: 9169,
+    frequency: 'Seasonal Apr–Oct 2024/2025', notes: 'Confirmed A346 Apr 2024 (12.9m weekly ASKs).',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 38.9531, lon: -77.4565 },
+  { id: 'lh-fra-hkg', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'HKG', destFull: 'Hong Kong International', country: 'Hong Kong', region: 'Asia',
+    flightNum: 'LH 796/797', depTime: '21:25', depUTC: '20:25', arrTime: '16:15+1', arrUTC: '08:15', depTZ: 'CET (UTC+1)', arrTZ: 'HKT (UTC+8)',
+    duration: '11h 50m', durationMin: 710, distance: '9169 km / 5699 mi', distanceKm: 9169,
     status: 'seasonal', aircraft: ['D-AIHX','D-AIHW','D-AIHN'],
-    frequency: 'Year-round except Nov–Dec', notes: 'Busiest A346 route by ASK (18.03m weekly) as of Apr 2024. D-AIHX confirmed HKG–FRA 2024.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 22.3080, lon: 113.9185
-  },
-  {
-    id: 'fra-pvg', hub: 'FRA', hubFull: 'Frankfurt', dest: 'PVG', destFull: 'Shanghai Pudong', country: 'China', region: 'Asia',
-    flightNum: 'LH 728 / LH 729', depTime: '21:50', depUTC: '20:50', arrTime: '14:40+1', arrUTC: '06:40',
-    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC+8)', duration: '10h 50m', durationMin: 650,
-    distance: '9204 km / 5720 mi', distanceKm: 9204,
+    frequency: 'Year-round except Nov–Dec', notes: 'Busiest A346 route by ASK (18.03m weekly) Apr 2024.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 22.3080, lon: 113.9185 },
+  { id: 'lh-fra-pvg', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'PVG', destFull: 'Shanghai Pudong', country: 'China', region: 'Asia',
+    flightNum: 'LH 728/729', depTime: '21:50', depUTC: '20:50', arrTime: '14:40+1', arrUTC: '06:40', depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC+8)',
+    duration: '10h 50m', durationMin: 650, distance: '9204 km / 5720 mi', distanceKm: 9204,
     status: 'seasonal', aircraft: ['D-AIHW','D-AIHY','D-AIHZ'],
-    frequency: 'Seasonal 2025', notes: 'FRA–PVG confirmed with A346 in summer 2025 schedule.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 31.1443, lon: 121.8083
-  },
-  {
-    id: 'fra-del', hub: 'FRA', hubFull: 'Frankfurt', dest: 'DEL', destFull: 'Delhi Indira Gandhi', country: 'India', region: 'Asia',
-    flightNum: 'LH 760 / LH 761', depTime: '22:05', depUTC: '21:05', arrTime: '09:45+1', arrUTC: '04:15',
-    depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)', duration: '7h 40m', durationMin: 460,
-    distance: '5994 km / 3724 mi', distanceKm: 5994,
+    frequency: 'Seasonal 2025', notes: 'FRA–PVG confirmed with A346 summer 2025.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 31.1443, lon: 121.8083 },
+  { id: 'lh-fra-del', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'DEL', destFull: 'Delhi Indira Gandhi', country: 'India', region: 'Asia',
+    flightNum: 'LH 760/761', depTime: '22:05', depUTC: '21:05', arrTime: '09:45+1', arrUTC: '04:15', depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)',
+    duration: '7h 40m', durationMin: 460, distance: '5994 km / 3724 mi', distanceKm: 5994,
     status: 'seasonal', aircraft: ['D-AIHF','D-AIHN','D-AIHT'],
-    frequency: 'Selected dates 2024–2025', notes: 'A346 used on FRA–DEL on selected dates Oct 2024 – Mar 2025 per schedule data.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 28.5562, lon: 77.1000
-  },
-  {
-    id: 'fra-bog', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOG', destFull: 'Bogotá El Dorado', country: 'Colombia', region: 'South America',
-    flightNum: 'LH 502 / LH 503', depTime: '13:15', depUTC: '12:15', arrTime: '19:55', arrUTC: '00:55+1',
-    depTZ: 'CET (UTC+1)', arrTZ: 'COT (UTC-5)', duration: '12h 40m', durationMin: 760,
-    distance: '9533 km / 5925 mi', distanceKm: 9533,
+    frequency: 'Selected dates 2024–2025', notes: 'A346 Oct 2024–Mar 2025 per schedule data.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 28.5562, lon: 77.1000 },
+  { id: 'lh-fra-yul', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'YUL', destFull: 'Montreal Trudeau', country: 'Canada', region: 'North America',
+    flightNum: 'LH 472/473', depTime: '11:50', depUTC: '10:50', arrTime: '14:00', arrUTC: '19:00', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 10m', durationMin: 550, distance: '6112 km / 3798 mi', distanceKm: 6112,
+    status: 'seasonal', aircraft: ['D-AIHT','D-AIHV'],
+    frequency: 'Oct–Dec 2022/2024 only', notes: 'Temporary deployment substituting B787.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 45.4706, lon: -73.7408 },
+
+  // ── RETIRED FRA ───────────────────────────────────────────────────────
+  { id: 'lh-fra-bog', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOG', destFull: 'Bogotá El Dorado', country: 'Colombia', region: 'South America',
+    flightNum: 'LH 502/503', depTime: '13:15', depUTC: '12:15', arrTime: '19:55', arrUTC: '00:55+1', depTZ: 'CET (UTC+1)', arrTZ: 'COT (UTC-5)',
+    duration: '12h 40m', durationMin: 760, distance: '9533 km / 5925 mi', distanceKm: 9533,
     status: 'retired', aircraft: ['D-AIHA','D-AIHB','D-AIHK'],
-    frequency: 'Until Mar 2024', notes: 'Retired March 2024 after ~10 years; replaced by A350-900.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 4.7016, lon: -74.1469
-  },
-  {
-    id: 'fra-yul', hub: 'FRA', hubFull: 'Frankfurt', dest: 'YUL', destFull: 'Montreal Trudeau', country: 'Canada', region: 'North America',
-    flightNum: 'LH 472 / LH 473', depTime: '11:50', depUTC: '10:50', arrTime: '14:00', arrUTC: '19:00',
-    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 10m', durationMin: 550,
-    distance: '6112 km / 3798 mi', distanceKm: 6112,
-    status: 'retired', aircraft: ['D-AIHT','D-AIHV'],
-    frequency: 'Oct–Dec 2022/2024 only', notes: 'Temporary A346 deployment substituting B787.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 45.4706, lon: -73.7408
-  },
-  {
-    id: 'fra-muc-bom', hub: 'FRA', hubFull: 'Frankfurt', dest: 'BOM', destFull: 'Mumbai Chhatrapati Shivaji', country: 'India', region: 'Asia',
-    flightNum: 'LH 760', depTime: '21:55', depUTC: '20:55', arrTime: '09:30+1', arrUTC: '04:00',
-    depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)', duration: '8h 35m', durationMin: 515,
-    distance: '6261 km / 3890 mi', distanceKm: 6261,
-    status: 'retired', aircraft: ['D-AIHA','D-AIHB','D-AIHP'],
-    frequency: 'Pre-2019 (FRA); retired', notes: 'FRA–BOM served by A346 until MUC took over. MUC A346–BOM ran 2023–2024 (LH 766/767).',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 19.0896, lon: 72.8656
-  },
-
-  // ═══════════════════════════════════════════════════════════
-  // MUNICH A340-600 ROUTES (2004–Oct 26, 2024)
-  // ═══════════════════════════════════════════════════════════
-  {
-    id: 'muc-bos', hub: 'MUC', hubFull: 'Munich', dest: 'BOS', destFull: 'Boston Logan', country: 'USA', region: 'North America',
-    flightNum: 'LH 440 / LH 441', depTime: '11:05', depUTC: '10:05', arrTime: '13:10', arrUTC: '18:10',
-    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 05m', durationMin: 545,
-    distance: '6422 km / 3991 mi', distanceKm: 6422,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHE'],
-    frequency: '2019–Oct 2024', notes: 'Core MUC–US route. A346 ended at MUC Oct 26, 2024; replaced by A350.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 42.3656, lon: -71.0096
-  },
-  {
-    id: 'muc-jfk', hub: 'MUC', hubFull: 'Munich', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
-    flightNum: 'LH 410 / LH 411', depTime: '10:40', depUTC: '09:40', arrTime: '13:30', arrUTC: '18:30',
-    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 50m', durationMin: 590,
-    distance: '6499 km / 4039 mi', distanceKm: 6499,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHT'],
-    frequency: '~2005–Oct 2024', notes: 'Long-standing MUC–JFK A346 connection ended Oct 2024.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 40.6413, lon: -73.7781
-  },
-  {
-    id: 'muc-ewr', hub: 'MUC', hubFull: 'Munich', dest: 'EWR', destFull: 'New York Newark', country: 'USA', region: 'North America',
-    flightNum: 'LH 412 / LH 413', depTime: '10:30', depUTC: '09:30', arrTime: '13:15', arrUTC: '18:15',
-    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '9h 45m', durationMin: 585,
-    distance: '6520 km / 4051 mi', distanceKm: 6520,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHT','D-AIHN'],
-    frequency: '~2004–2024', notes: 'Confirmed MUC–EWR A346 service; one of top-5 busiest A346 routes (Apr 2024 data).',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 40.6895, lon: -74.1745
-  },
-  {
-    id: 'muc-iad', hub: 'MUC', hubFull: 'Munich', dest: 'IAD', destFull: 'Washington Dulles', country: 'USA', region: 'North America',
-    flightNum: 'LH 438 / LH 439', depTime: '10:50', depUTC: '09:50', arrTime: '13:50', arrUTC: '18:50',
-    depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)', duration: '10h 00m', durationMin: 600,
-    distance: '6934 km / 4309 mi', distanceKm: 6934,
-    status: 'retired', aircraft: ['D-AIHE','D-AIHT','D-AIHV'],
-    frequency: '~2005–Oct 2024', notes: 'One of top-5 busiest A346 routes. A380 replaced it summers. Confirmed 13.4m weekly ASKs.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 38.9531, lon: -77.4565
-  },
-  {
-    id: 'muc-ord', hub: 'MUC', hubFull: 'Munich', dest: 'ORD', destFull: "Chicago O'Hare", country: 'USA', region: 'North America',
-    flightNum: 'LH 434 / LH 435', depTime: '11:25', depUTC: '10:25', arrTime: '13:25', arrUTC: '19:25',
-    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)', duration: '11h 00m', durationMin: 660,
-    distance: '7919 km / 4922 mi', distanceKm: 7919,
-    status: 'retired', aircraft: ['D-AIHT','D-AIHV','D-AIHU'],
-    frequency: '~2004–Oct 2024', notes: 'MUC–ORD A346 service ran regularly; confirmed in 2019 first-class route list.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 41.9742, lon: -87.9073
-  },
-  {
-    id: 'muc-lax', hub: 'MUC', hubFull: 'Munich', dest: 'LAX', destFull: 'Los Angeles International', country: 'USA', region: 'North America',
-    flightNum: 'LH 452 / LH 453', depTime: '11:55', depUTC: '10:55', arrTime: '14:10', arrUTC: '22:10',
-    depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)', duration: '12h 15m', durationMin: 735,
-    distance: '9380 km / 5828 mi', distanceKm: 9380,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHN'],
-    frequency: 'Until ~2018 (A380 took over)', notes: 'Review confirmed MUC–LAX on A346 until A380 displacement ~2018.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 33.9425, lon: -118.4081
-  },
-  {
-    id: 'muc-sfo', hub: 'MUC', hubFull: 'Munich', dest: 'SFO', destFull: 'San Francisco International', country: 'USA', region: 'North America',
-    flightNum: 'LH 458 / LH 459', depTime: '13:20', depUTC: '12:20', arrTime: '15:40', arrUTC: '23:40',
-    depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)', duration: '12h 20m', durationMin: 740,
-    distance: '9671 km / 6009 mi', distanceKm: 9671,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
-    frequency: 'Winter season only (~2004–2018)', notes: 'Oct–Mar only; displaced by A380/A350 from ~2018.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 37.6189, lon: -122.3750
-  },
-  {
-    id: 'muc-mex', hub: 'MUC', hubFull: 'Munich', dest: 'MEX', destFull: 'Mexico City Benito Juárez', country: 'Mexico', region: 'North America',
-    flightNum: 'LH 454 / LH 455', depTime: '12:30', depUTC: '11:30', arrTime: '17:10', arrUTC: '23:10',
-    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)', duration: '13h 40m', durationMin: 820,
-    distance: '10059 km / 6250 mi', distanceKm: 10059,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
-    frequency: 'Until ~2017', notes: 'Confirmed MUC–MEX A346 in 2019 first-class route data; A350/747 replaced.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 19.4363, lon: -99.0721
-  },
-  {
-    id: 'muc-pvg', hub: 'MUC', hubFull: 'Munich', dest: 'PVG', destFull: 'Shanghai Pudong', country: 'China', region: 'Asia',
-    flightNum: 'LH 728 / LH 729', depTime: '21:40', depUTC: '20:40', arrTime: '14:30+1', arrUTC: '06:30',
-    depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC+8)', duration: '10h 50m', durationMin: 650,
-    distance: '9204 km / 5720 mi', distanceKm: 9204,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
-    frequency: '~2004–2019', notes: 'MUC–PVG confirmed in 2019 first-class A346 route list; later replaced by A350.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 31.1443, lon: 121.8083
-  },
-  {
-    id: 'muc-del', hub: 'MUC', hubFull: 'Munich', dest: 'DEL', destFull: 'Delhi Indira Gandhi', country: 'India', region: 'Asia',
-    flightNum: 'LH 762 / LH 763', depTime: '22:00', depUTC: '21:00', arrTime: '09:30+1', arrUTC: '04:00',
-    depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)', duration: '7h 30m', durationMin: 450,
-    distance: '5941 km / 3692 mi', distanceKm: 5941,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHE'],
-    frequency: '~2004–2024', notes: 'Confirmed MUC–DEL A346 in 2019; one of top-5 busiest MUC A346 routes (Apr 2024).',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 28.5562, lon: 77.1000
-  },
-  {
-    id: 'muc-bom', hub: 'MUC', hubFull: 'Munich', dest: 'BOM', destFull: 'Mumbai Chhatrapati Shivaji', country: 'India', region: 'Asia',
-    flightNum: 'LH 766 / LH 767', depTime: '21:30', depUTC: '20:30', arrTime: '08:00+1', arrUTC: '02:30',
-    depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)', duration: '8h 30m', durationMin: 510,
-    distance: '6572 km / 4084 mi', distanceKm: 6572,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHT'],
-    frequency: '2023–Oct 2024', notes: 'MUC–BOM confirmed A346 route; listed as one of the 5 busiest by ASK in Apr 2024.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 19.0896, lon: 72.8656
-  },
-  {
-    id: 'muc-yvr', hub: 'MUC', hubFull: 'Munich', dest: 'YVR', destFull: 'Vancouver International', country: 'Canada', region: 'North America',
-    flightNum: 'LH 492 / LH 493', depTime: '12:00', depUTC: '11:00', arrTime: '12:45', arrUTC: '20:45',
-    depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)', duration: '11h 45m', durationMin: 705,
-    distance: '8694 km / 5404 mi', distanceKm: 8694,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
-    frequency: '~2018–2020', notes: 'Confirmed MUC–YVR A346 in 2019 first-class list; displaced by A350.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 49.1967, lon: -123.1815
-  },
-  {
-    id: 'muc-gru', hub: 'MUC', hubFull: 'Munich', dest: 'GRU', destFull: 'São Paulo Guarulhos', country: 'Brazil', region: 'South America',
-    flightNum: 'LH 504 / LH 505', depTime: '22:00', depUTC: '21:00', arrTime: '06:20+1', arrUTC: '09:20',
-    depTZ: 'CET (UTC+1)', arrTZ: 'BRT (UTC-3)', duration: '12h 20m', durationMin: 740,
-    distance: '10213 km / 6346 mi', distanceKm: 10213,
-    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHN'],
-    frequency: '~2008–2016 (MUC); FRA continued to 2022', notes: 'MUC–GRU A346 operated through ~2016. FRA–GRU also served by A346 until ~2022.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: -23.4356, lon: -46.4731
-  },
-
-  // ═══════════════════════════════════════════════════════════
-  // HISTORICAL FRANKFURT ROUTES (pre-2022)
-  // ═══════════════════════════════════════════════════════════
-  {
-    id: 'fra-gru', hub: 'FRA', hubFull: 'Frankfurt', dest: 'GRU', destFull: 'São Paulo Guarulhos', country: 'Brazil', region: 'South America',
-    flightNum: 'LH 502 / LH 503', depTime: '21:30', depUTC: '20:30', arrTime: '05:40+1', arrUTC: '08:40',
-    depTZ: 'CET (UTC+1)', arrTZ: 'BRT (UTC-3)', duration: '12h 10m', durationMin: 730,
-    distance: '9984 km / 6204 mi', distanceKm: 9984,
+    frequency: 'Until Mar 2024', notes: 'Retired March 2024; replaced by A350-900.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 4.7016, lon: -74.1469 },
+  { id: 'lh-fra-gru', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'GRU', destFull: 'São Paulo Guarulhos', country: 'Brazil', region: 'South America',
+    flightNum: 'LH 502/503', depTime: '21:30', depUTC: '20:30', arrTime: '05:40+1', arrUTC: '08:40', depTZ: 'CET (UTC+1)', arrTZ: 'BRT (UTC-3)',
+    duration: '12h 10m', durationMin: 730, distance: '9984 km / 6204 mi', distanceKm: 9984,
     status: 'retired', aircraft: ['D-AIHO','D-AIHP','D-AIHA'],
-    frequency: 'Until ~2022', notes: 'Long-standing FRA–GRU A346 service retired ~2022; replaced by 747-8.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: -23.4356, lon: -46.4731
-  },
-  {
-    id: 'fra-yvr', hub: 'FRA', hubFull: 'Frankfurt', dest: 'YVR', destFull: 'Vancouver International', country: 'Canada', region: 'North America',
-    flightNum: 'LH 492 / LH 493', depTime: '12:15', depUTC: '11:15', arrTime: '13:00', arrUTC: '21:00',
-    depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)', duration: '11h 45m', durationMin: 705,
-    distance: '8374 km / 5202 mi', distanceKm: 8374,
+    frequency: 'Until ~2022', notes: 'Long-standing FRA–GRU A346 retired ~2022; replaced by 747-8.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: -23.4356, lon: -46.4731 },
+  { id: 'lh-fra-yvr', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'YVR', destFull: 'Vancouver', country: 'Canada', region: 'North America',
+    flightNum: 'LH 492/493', depTime: '12:15', depUTC: '11:15', arrTime: '13:00', arrUTC: '21:00', depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)',
+    duration: '11h 45m', durationMin: 705, distance: '8374 km / 5202 mi', distanceKm: 8374,
     status: 'retired', aircraft: ['D-AIHD','D-AIHE','D-AIHO'],
-    frequency: 'Until ~2018', notes: 'FRA–YVR A346 confirmed in historical schedules; replaced by A350.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 49.1967, lon: -123.1815
-  },
-  {
-    id: 'fra-sin', hub: 'FRA', hubFull: 'Frankfurt', dest: 'SIN', destFull: 'Singapore Changi', country: 'Singapore', region: 'Asia',
-    flightNum: 'LH 778 / LH 779', depTime: '21:25', depUTC: '20:25', arrTime: '16:00+1', arrUTC: '08:00',
-    depTZ: 'CET (UTC+1)', arrTZ: 'SGT (UTC+8)', duration: '12h 35m', durationMin: 755,
-    distance: '10321 km / 6414 mi', distanceKm: 10321,
+    frequency: 'Until ~2018', notes: 'Replaced by A350.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 49.1967, lon: -123.1815 },
+  { id: 'lh-fra-sin', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'SIN', destFull: 'Singapore Changi', country: 'Singapore', region: 'Asia',
+    flightNum: 'LH 778/779', depTime: '21:25', depUTC: '20:25', arrTime: '16:00+1', arrUTC: '08:00', depTZ: 'CET (UTC+1)', arrTZ: 'SGT (UTC+8)',
+    duration: '12h 35m', durationMin: 755, distance: '10321 km / 6414 mi', distanceKm: 10321,
     status: 'retired', aircraft: ['D-AIHO','D-AIHP','D-AIHA'],
-    frequency: 'Until ~2019', notes: 'FRA–SIN A346 confirmed in historical A340 schedules; replaced by A350/787.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 1.3644, lon: 103.9915
-  },
-  {
-    id: 'fra-dxb-auh', hub: 'FRA', hubFull: 'Frankfurt', dest: 'AUH', destFull: 'Abu Dhabi (via Dubai)', country: 'UAE', region: 'Middle East',
-    flightNum: 'LH 632 / LH 633', depTime: '09:30', depUTC: '08:30', arrTime: '20:40', arrUTC: '16:40',
-    depTZ: 'CET (UTC+1)', arrTZ: 'GST (UTC+4)', duration: '7h 10m + stop', durationMin: 430,
-    distance: '5019 km / 3119 mi', distanceKm: 5019,
-    status: 'retired', aircraft: ['D-AIHO','D-AIHP'],
-    frequency: 'Historical (~2004–2012)', notes: 'FRA–DXB–AUH routing with A346 per historical schedule data.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 24.4330, lon: 54.6511
-  },
-  {
-    id: 'fra-wdh-hre', hub: 'FRA', hubFull: 'Frankfurt', dest: 'HRE', destFull: 'Harare (via Windhoek)', country: 'Zimbabwe', region: 'Africa',
-    flightNum: 'LH 596 / LH 597', depTime: '21:25', depUTC: '20:25', arrTime: '10:40+1', arrUTC: '08:40',
-    depTZ: 'CET (UTC+1)', arrTZ: 'CAT (UTC+2)', duration: '12h 15m + stop', durationMin: 735,
-    distance: '10520 km / 6537 mi', distanceKm: 10520,
+    frequency: 'Until ~2019', notes: 'Replaced by A350/787.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 1.3644, lon: 103.9915 },
+  { id: 'lh-fra-icn', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'ICN', destFull: 'Seoul Incheon', country: 'South Korea', region: 'Asia',
+    flightNum: 'LH 718/719', depTime: '21:30', depUTC: '20:30', arrTime: '14:20+1', arrUTC: '05:20', depTZ: 'CET (UTC+1)', arrTZ: 'KST (UTC+9)',
+    duration: '11h 50m', durationMin: 710, distance: '9047 km / 5623 mi', distanceKm: 9047,
+    status: 'retired', aircraft: ['D-AIHO','D-AIHP','D-AIHA'],
+    frequency: 'Historical (~2004–2012)', notes: 'FRA–ICN A346 in early historical schedules.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 37.4691, lon: 126.4511 },
+  { id: 'lh-fra-wdh', airline: 'LH', hub: 'FRA', hubFull: 'Frankfurt', dest: 'HRE', destFull: 'Harare (via Windhoek)', country: 'Zimbabwe', region: 'Africa',
+    flightNum: 'LH 596/597', depTime: '21:25', depUTC: '20:25', arrTime: '10:40+1', arrUTC: '08:40', depTZ: 'CET (UTC+1)', arrTZ: 'CAT (UTC+2)',
+    duration: '12h 15m + stop', durationMin: 735, distance: '10520 km / 6537 mi', distanceKm: 10520,
     status: 'retired', aircraft: ['D-AIHO','D-AIHP'],
     frequency: 'Historical (~2004–2010)', notes: 'FRA–WDH–HRE confirmed in historical A340 schedules.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: -17.9318, lon: 31.0928
-  },
-  {
-    id: 'fra-sel', hub: 'FRA', hubFull: 'Frankfurt', dest: 'ICN', destFull: 'Seoul Incheon', country: 'South Korea', region: 'Asia',
-    flightNum: 'LH 718 / LH 719', depTime: '21:30', depUTC: '20:30', arrTime: '14:20+1', arrUTC: '05:20',
-    depTZ: 'CET (UTC+1)', arrTZ: 'KST (UTC+9)', duration: '11h 50m', durationMin: 710,
-    distance: '9047 km / 5623 mi', distanceKm: 9047,
-    status: 'retired', aircraft: ['D-AIHO','D-AIHP','D-AIHA'],
-    frequency: 'Historical (~2004–2012)', notes: 'FRA–SEL A346 listed in early historical A340 schedules.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 37.4691, lon: 126.4511
-  },
-  {
-    id: 'fra-ngo', hub: 'FRA', hubFull: 'Frankfurt', dest: 'NGO', destFull: 'Nagoya Chubu Centrair', country: 'Japan', region: 'Asia',
-    flightNum: 'LH 736 / LH 737', depTime: '21:35', depUTC: '20:35', arrTime: '15:30+1', arrUTC: '06:30',
-    depTZ: 'CET (UTC+1)', arrTZ: 'JST (UTC+9)', duration: '11h 55m', durationMin: 715,
-    distance: '9626 km / 5982 mi', distanceKm: 9626,
-    status: 'retired', aircraft: ['D-AIHO','D-AIHP'],
-    frequency: 'Historical (~2005–2012)', notes: 'FRA–NGO A346 confirmed in historical schedules.',
-    configs: { first: 8, business: 44, premium: 32, economy: 213 },
-    lat: 34.8583, lon: 136.8050
-  },
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: -17.9318, lon: 31.0928 },
+
+  // ── MUNICH (MUC) ─────────────────────────────────────────────────────
+  { id: 'lh-muc-bos', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'BOS', destFull: 'Boston Logan', country: 'USA', region: 'North America',
+    flightNum: 'LH 440/441', depTime: '11:05', depUTC: '10:05', arrTime: '13:10', arrUTC: '18:10', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 05m', durationMin: 545, distance: '6422 km / 3991 mi', distanceKm: 6422,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHE'],
+    frequency: '2019–Oct 2024', notes: 'MUC A346 operations ended Oct 26, 2024.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 42.3656, lon: -71.0096 },
+  { id: 'lh-muc-jfk', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
+    flightNum: 'LH 410/411', depTime: '10:40', depUTC: '09:40', arrTime: '13:30', arrUTC: '18:30', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 50m', durationMin: 590, distance: '6499 km / 4039 mi', distanceKm: 6499,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHT'],
+    frequency: '~2005–Oct 2024', notes: 'MUC A346 ended Oct 2024.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 40.6413, lon: -73.7781 },
+  { id: 'lh-muc-ewr', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'EWR', destFull: 'New York Newark', country: 'USA', region: 'North America',
+    flightNum: 'LH 412/413', depTime: '10:30', depUTC: '09:30', arrTime: '13:15', arrUTC: '18:15', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 45m', durationMin: 585, distance: '6520 km / 4051 mi', distanceKm: 6520,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHT','D-AIHN'],
+    frequency: '~2004–2024', notes: 'One of top-5 busiest A346 routes by ASK (Apr 2024).',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 40.6895, lon: -74.1745 },
+  { id: 'lh-muc-iad', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'IAD', destFull: 'Washington Dulles', country: 'USA', region: 'North America',
+    flightNum: 'LH 438/439', depTime: '10:50', depUTC: '09:50', arrTime: '13:50', arrUTC: '18:50', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '10h 00m', durationMin: 600, distance: '6934 km / 4309 mi', distanceKm: 6934,
+    status: 'retired', aircraft: ['D-AIHE','D-AIHT','D-AIHV'],
+    frequency: '~2005–Oct 2024', notes: 'Confirmed 13.4m weekly ASKs Apr 2024.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 38.9531, lon: -77.4565 },
+  { id: 'lh-muc-ord', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'ORD', destFull: "Chicago O'Hare", country: 'USA', region: 'North America',
+    flightNum: 'LH 434/435', depTime: '11:25', depUTC: '10:25', arrTime: '13:25', arrUTC: '19:25', depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)',
+    duration: '11h 00m', durationMin: 660, distance: '7919 km / 4922 mi', distanceKm: 7919,
+    status: 'retired', aircraft: ['D-AIHT','D-AIHV','D-AIHU'],
+    frequency: '~2004–Oct 2024', notes: 'Confirmed in 2019 first-class A346 route list.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 41.9742, lon: -87.9073 },
+  { id: 'lh-muc-lax', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'LAX', destFull: 'Los Angeles', country: 'USA', region: 'North America',
+    flightNum: 'LH 452/453', depTime: '11:55', depUTC: '10:55', arrTime: '14:10', arrUTC: '22:10', depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)',
+    duration: '12h 15m', durationMin: 735, distance: '9380 km / 5828 mi', distanceKm: 9380,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHN'],
+    frequency: 'Until ~2018', notes: 'A380 displaced A346 on MUC–LAX ~2018.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 33.9425, lon: -118.4081 },
+  { id: 'lh-muc-sfo', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'SFO', destFull: 'San Francisco', country: 'USA', region: 'North America',
+    flightNum: 'LH 458/459', depTime: '13:20', depUTC: '12:20', arrTime: '15:40', arrUTC: '23:40', depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)',
+    duration: '12h 20m', durationMin: 740, distance: '9671 km / 6009 mi', distanceKm: 9671,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
+    frequency: 'Winter season only (~2004–2018)', notes: 'Oct–Mar only; displaced by A380/A350.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 37.6189, lon: -122.3750 },
+  { id: 'lh-muc-mex', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'MEX', destFull: 'Mexico City', country: 'Mexico', region: 'North America',
+    flightNum: 'LH 454/455', depTime: '12:30', depUTC: '11:30', arrTime: '17:10', arrUTC: '23:10', depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)',
+    duration: '13h 40m', durationMin: 820, distance: '10059 km / 6250 mi', distanceKm: 10059,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
+    frequency: 'Until ~2017', notes: 'Confirmed MUC–MEX in 2019 A346 first-class route data.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 19.4363, lon: -99.0721 },
+  { id: 'lh-muc-pvg', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'PVG', destFull: 'Shanghai Pudong', country: 'China', region: 'Asia',
+    flightNum: 'LH 728/729', depTime: '21:40', depUTC: '20:40', arrTime: '14:30+1', arrUTC: '06:30', depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC+8)',
+    duration: '10h 50m', durationMin: 650, distance: '9204 km / 5720 mi', distanceKm: 9204,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
+    frequency: '~2004–2019', notes: 'Confirmed in 2019 first-class A346 route list; replaced by A350.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 31.1443, lon: 121.8083 },
+  { id: 'lh-muc-del', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'DEL', destFull: 'Delhi Indira Gandhi', country: 'India', region: 'Asia',
+    flightNum: 'LH 762/763', depTime: '22:00', depUTC: '21:00', arrTime: '09:30+1', arrUTC: '04:00', depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)',
+    duration: '7h 30m', durationMin: 450, distance: '5941 km / 3692 mi', distanceKm: 5941,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHE'],
+    frequency: '~2004–2024', notes: 'Top-5 busiest MUC A346 routes by ASK (Apr 2024).',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 28.5562, lon: 77.1000 },
+  { id: 'lh-muc-bom', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'BOM', destFull: 'Mumbai Chhatrapati Shivaji', country: 'India', region: 'Asia',
+    flightNum: 'LH 766/767', depTime: '21:30', depUTC: '20:30', arrTime: '08:00+1', arrUTC: '02:30', depTZ: 'CET (UTC+1)', arrTZ: 'IST (UTC+5:30)',
+    duration: '8h 30m', durationMin: 510, distance: '6572 km / 4084 mi', distanceKm: 6572,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHT'],
+    frequency: '2023–Oct 2024', notes: 'MUC–BOM confirmed top-5 busiest by ASK Apr 2024.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 19.0896, lon: 72.8656 },
+  { id: 'lh-muc-yvr', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'YVR', destFull: 'Vancouver', country: 'Canada', region: 'North America',
+    flightNum: 'LH 492/493', depTime: '12:00', depUTC: '11:00', arrTime: '12:45', arrUTC: '20:45', depTZ: 'CET (UTC+1)', arrTZ: 'PST (UTC-8)',
+    duration: '11h 45m', durationMin: 705, distance: '8694 km / 5404 mi', distanceKm: 8694,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHN','D-AIHV'],
+    frequency: '~2018–2020', notes: 'MUC–YVR A346 confirmed 2019; displaced by A350.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: 49.1967, lon: -123.1815 },
+  { id: 'lh-muc-gru', airline: 'LH', hub: 'MUC', hubFull: 'Munich', dest: 'GRU', destFull: 'São Paulo Guarulhos', country: 'Brazil', region: 'South America',
+    flightNum: 'LH 504/505', depTime: '22:00', depUTC: '21:00', arrTime: '06:20+1', arrUTC: '09:20', depTZ: 'CET (UTC+1)', arrTZ: 'BRT (UTC-3)',
+    duration: '12h 20m', durationMin: 740, distance: '10213 km / 6346 mi', distanceKm: 10213,
+    status: 'retired', aircraft: ['D-AIHU','D-AIHV','D-AIHN'],
+    frequency: '~2008–2016 (MUC)', notes: 'MUC–GRU A346 through ~2016. FRA–GRU also served until ~2022.',
+    configs: { first: 8, business: 44, premium: 32, economy: 213 }, lat: -23.4356, lon: -46.4731 },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // VIRGIN ATLANTIC (VS) — Hub: LHR — All retired Mar 2020
+  // ════════════════════════════════════════════════════════════════════════
+  { id: 'vs-lhr-jfk', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
+    flightNum: 'VS 003/004', depTime: '09:25', depUTC: '09:25', arrTime: '12:15', arrUTC: '17:15', depTZ: 'GMT (UTC+0)', arrTZ: 'EST (UTC-5)',
+    duration: '7h 50m', durationMin: 470, distance: '5541 km / 3443 mi', distanceKm: 5541,
+    status: 'retired', aircraft: ['G-VYOU','G-VWEB','G-VFIT','G-VWIN','G-VRED'],
+    frequency: 'Up to 3x daily (2002–2020)', notes: 'VS flagship route; last A346 JFK service Dec 2019. Up to 21x weekly on A346.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 40.6413, lon: -73.7781 },
+  { id: 'vs-lhr-lax', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'LAX', destFull: 'Los Angeles', country: 'USA', region: 'North America',
+    flightNum: 'VS 007/008', depTime: '11:30', depUTC: '11:30', arrTime: '14:05', arrUTC: '22:05', depTZ: 'GMT (UTC+0)', arrTZ: 'PST (UTC-8)',
+    duration: '10h 35m', durationMin: 635, distance: '8755 km / 5442 mi', distanceKm: 8755,
+    status: 'retired', aircraft: ['G-VATL','G-VGOA','G-VWIN','G-VWEB'],
+    frequency: 'Daily (2002–2019)', notes: 'VS principal West Coast route with A346; 14x weekly.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 33.9425, lon: -118.4081 },
+  { id: 'vs-lhr-sfo', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'SFO', destFull: 'San Francisco', country: 'USA', region: 'North America',
+    flightNum: 'VS 019/020', depTime: '11:10', depUTC: '11:10', arrTime: '13:50', arrUTC: '21:50', depTZ: 'GMT (UTC+0)', arrTZ: 'PST (UTC-8)',
+    duration: '10h 40m', durationMin: 640, distance: '8619 km / 5357 mi', distanceKm: 8619,
+    status: 'retired', aircraft: ['G-VEIT','G-VFIT','G-VBUG'],
+    frequency: 'Daily (2002–2019)', notes: 'SFO among top A346 routes for VS.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 37.6189, lon: -122.3750 },
+  { id: 'vs-lhr-ewr', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'EWR', destFull: 'New York Newark', country: 'USA', region: 'North America',
+    flightNum: 'VS 025/026', depTime: '10:00', depUTC: '10:00', arrTime: '13:00', arrUTC: '18:00', depTZ: 'GMT (UTC+0)', arrTZ: 'EST (UTC-5)',
+    duration: '8h 00m', durationMin: 480, distance: '5570 km / 3460 mi', distanceKm: 5570,
+    status: 'retired', aircraft: ['G-VGOA','G-VSHY','G-VATL'],
+    frequency: '7x weekly (2002–2019)', notes: 'Confirmed A346 in Dec 2019 schedule alongside JFK.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 40.6895, lon: -74.1745 },
+  { id: 'vs-lhr-bos', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'BOS', destFull: 'Boston Logan', country: 'USA', region: 'North America',
+    flightNum: 'VS 011/012', depTime: '11:00', depUTC: '11:00', arrTime: '13:30', arrUTC: '18:30', depTZ: 'GMT (UTC+0)', arrTZ: 'EST (UTC-5)',
+    duration: '7h 30m', durationMin: 450, distance: '5262 km / 3269 mi', distanceKm: 5262,
+    status: 'retired', aircraft: ['G-VGOA','G-VSSH','G-VATL'],
+    frequency: '7x weekly (2002–2019)', notes: 'Confirmed on A346 per historical fleet data.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 42.3656, lon: -71.0096 },
+  { id: 'vs-lhr-atl', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'ATL', destFull: 'Atlanta Hartsfield-Jackson', country: 'USA', region: 'North America',
+    flightNum: 'VS 103/104', depTime: '09:20', depUTC: '09:20', arrTime: '14:15', arrUTC: '19:15', depTZ: 'GMT (UTC+0)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 55m', durationMin: 595, distance: '7027 km / 4367 mi', distanceKm: 7027,
+    status: 'retired', aircraft: ['G-VFIT','G-VWIN','G-VNAP'],
+    frequency: 'Nov 2019–Jan 2020 (final A346 US route)', notes: 'ATL was the LAST route VS operated A346. Final flight Jan 8, 2020.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 33.6367, lon: -84.4281 },
+  { id: 'vs-lhr-hkg', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'HKG', destFull: 'Hong Kong International', country: 'Hong Kong', region: 'Asia',
+    flightNum: 'VS 200/201', depTime: '21:55', depUTC: '21:55', arrTime: '17:40+1', arrUTC: '09:40', depTZ: 'GMT (UTC+0)', arrTZ: 'HKT (UTC+8)',
+    duration: '11h 45m', durationMin: 705, distance: '9648 km / 5995 mi', distanceKm: 9648,
+    status: 'retired', aircraft: ['G-VATL','G-VGOA','G-VGAS'],
+    frequency: '7x weekly (~2003–2015)', notes: 'A346 served LHR–HKG until 787 displacement ~2015. G-VATL incident Feb 2005 en route HKG.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 22.3080, lon: 113.9185 },
+  { id: 'vs-lhr-pvg', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'PVG', destFull: 'Shanghai Pudong', country: 'China', region: 'Asia',
+    flightNum: 'VS 250/251', depTime: '21:25', depUTC: '21:25', arrTime: '16:20+1', arrUTC: '08:20', depTZ: 'GMT (UTC+0)', arrTZ: 'CST (UTC+8)',
+    duration: '10h 55m', durationMin: 655, distance: '9202 km / 5717 mi', distanceKm: 9202,
+    status: 'retired', aircraft: ['G-VATL','G-VGOA'],
+    frequency: '7x weekly (~2003–2015)', notes: 'A346 on LHR–PVG until 787 displacement.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 31.1443, lon: 121.8083 },
+  { id: 'vs-lhr-del', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'DEL', destFull: 'Delhi Indira Gandhi', country: 'India', region: 'Asia',
+    flightNum: 'VS 300/301', depTime: '21:30', depUTC: '21:30', arrTime: '09:05+1', arrUTC: '03:35', depTZ: 'GMT (UTC+0)', arrTZ: 'IST (UTC+5:30)',
+    duration: '8h 35m', durationMin: 515, distance: '6727 km / 4181 mi', distanceKm: 6727,
+    status: 'retired', aircraft: ['G-VATL','G-VGAS','G-VMEG'],
+    frequency: 'Until Sep 2019', notes: 'VS A340 LHR–DEL retired Sep 30, 2019; last DEL flight Oct 1, 2019 per TPG.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 28.5562, lon: 77.1000 },
+  { id: 'vs-lhr-jnb', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'JNB', destFull: 'Johannesburg OR Tambo', country: 'South Africa', region: 'Africa',
+    flightNum: 'VS 400/401', depTime: '20:30', depUTC: '20:30', arrTime: '09:35+1', arrUTC: '07:35', depTZ: 'GMT (UTC+0)', arrTZ: 'SAST (UTC+2)',
+    duration: '11h 05m', durationMin: 665, distance: '9075 km / 5640 mi', distanceKm: 9075,
+    status: 'retired', aircraft: ['G-VGOA','G-VSHY'],
+    frequency: '7x weekly (~2005–2015)', notes: 'A346 operated LHR–JNB; later replaced by 787.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: -26.1367, lon: 28.2411 },
+  { id: 'vs-lhr-los', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'LOS', destFull: 'Lagos Murtala Muhammed', country: 'Nigeria', region: 'Africa',
+    flightNum: 'VS 400/401', depTime: '21:30', depUTC: '21:30', arrTime: '05:30+1', arrUTC: '04:30', depTZ: 'GMT (UTC+0)', arrTZ: 'WAT (UTC+1)',
+    duration: '6h 00m', durationMin: 360, distance: '5129 km / 3188 mi', distanceKm: 5129,
+    status: 'retired', aircraft: ['G-VFIT','G-VNAP','G-VWIN'],
+    frequency: 'Dec 2019 only (final service)', notes: 'FINAL scheduled VS A346 flight: Lagos to LHR, Mar 8, 2020.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 6.5774, lon: 3.3215 },
+  { id: 'vs-lhr-dxb', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'DXB', destFull: 'Dubai International', country: 'UAE', region: 'Middle East',
+    flightNum: 'VS 400/401', depTime: '22:00', depUTC: '22:00', arrTime: '09:10+1', arrUTC: '05:10', depTZ: 'GMT (UTC+0)', arrTZ: 'GST (UTC+4)',
+    duration: '7h 10m', durationMin: 430, distance: '5486 km / 3410 mi', distanceKm: 5486,
+    status: 'retired', aircraft: ['G-VGOA','G-VATL','G-VSHY'],
+    frequency: '7x weekly (~2005–2018)', notes: 'A346 used on LHR–DXB until A330/787 displacement. Per Travel Codex 2017 route data.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 25.2528, lon: 55.3644 },
+  { id: 'vs-lhr-nrt', airline: 'VS', hub: 'LHR', hubFull: 'London Heathrow', dest: 'NRT', destFull: 'Tokyo Narita', country: 'Japan', region: 'Asia',
+    flightNum: 'VS 900/901', depTime: '13:30', depUTC: '13:30', arrTime: '09:45+1', arrUTC: '00:45', depTZ: 'GMT (UTC+0)', arrTZ: 'JST (UTC+9)',
+    duration: '11h 15m', durationMin: 675, distance: '9574 km / 5950 mi', distanceKm: 9574,
+    status: 'retired', aircraft: ['G-VATL','G-VGOA','G-VEIT'],
+    frequency: '7x weekly (~2003–2016)', notes: 'A346 operated LHR–NRT per historical fleet data.',
+    configs: { first: 0, business: 44, premium: 35, economy: 255 }, lat: 35.7648, lon: 140.3864 },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // CATHAY PACIFIC (CX) — Hub: HKG — 3 frames, 2002–2008
+  // ════════════════════════════════════════════════════════════════════════
+  { id: 'cx-hkg-lhr', airline: 'CX', hub: 'HKG', hubFull: 'Hong Kong', dest: 'LHR', destFull: 'London Heathrow', country: 'United Kingdom', region: 'Europe',
+    flightNum: 'CX 251/250', depTime: '23:55', depUTC: '15:55', arrTime: '05:55+1', arrUTC: '05:55', depTZ: 'HKT (UTC+8)', arrTZ: 'GMT (UTC+0)',
+    duration: '14h 00m', durationMin: 840, distance: '9648 km / 5995 mi', distanceKm: 9648,
+    status: 'retired', aircraft: ['B-HQB','B-HQC'],
+    frequency: 'Daily (Nov 2002–Oct 2008)', notes: 'Primary route for CX A346. B-HQB spotted LHR Aug 2007. B-HQC spotted LHR Apr 2008.',
+    configs: { first: 8, business: 44, premium: 0, economy: 209 }, lat: 51.4775, lon: -0.4614 },
+  { id: 'cx-hkg-jfk', airline: 'CX', hub: 'HKG', hubFull: 'Hong Kong', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
+    flightNum: 'CX 830/831', depTime: '01:15', depUTC: '17:15', arrTime: '05:30', arrUTC: '10:30', depTZ: 'HKT (UTC+8)', arrTZ: 'EST (UTC-5)',
+    duration: '16h 15m', durationMin: 975, distance: '12990 km / 8073 mi', distanceKm: 12990,
+    status: 'retired', aircraft: ['B-HQA','B-HQC'],
+    frequency: '~4x weekly (2003–2008)', notes: 'B-HQC spotted JFK Jun 2005; one of CX\'s longest A346 routes.',
+    configs: { first: 8, business: 44, premium: 0, economy: 209 }, lat: 40.6413, lon: -73.7781 },
+  { id: 'cx-hkg-ord', airline: 'CX', hub: 'HKG', hubFull: 'Hong Kong', dest: 'ORD', destFull: "Chicago O'Hare", country: 'USA', region: 'North America',
+    flightNum: 'CX 820/821', depTime: '23:30', depUTC: '15:30', arrTime: '06:00+1', arrUTC: '12:00', depTZ: 'HKT (UTC+8)', arrTZ: 'CST (UTC-6)',
+    duration: '14h 30m', durationMin: 870, distance: '12548 km / 7798 mi', distanceKm: 12548,
+    status: 'retired', aircraft: ['B-HQA','B-HQB'],
+    frequency: '~4x weekly (2003–2007)', notes: 'HKG–ORD among longest A346 routes by CX; replaced by 777.',
+    configs: { first: 8, business: 44, premium: 0, economy: 209 }, lat: 41.9742, lon: -87.9073 },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // SOUTH AFRICAN AIRWAYS (SA) — Hub: JNB — All retired 2020–2021
+  // ════════════════════════════════════════════════════════════════════════
+  { id: 'sa-jnb-jfk', airline: 'SA', hub: 'JNB', hubFull: 'Johannesburg OR Tambo', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
+    flightNum: 'SA 203/204', depTime: '18:00', depUTC: '16:00', arrTime: '06:30+1', arrUTC: '11:30', depTZ: 'SAST (UTC+2)', arrTZ: 'EST (UTC-5)',
+    duration: '17h 30m', durationMin: 1050, distance: '12825 km / 7970 mi', distanceKm: 12825,
+    status: 'retired', aircraft: ['ZS-SND','ZS-SNF','ZS-SNG'],
+    frequency: 'Daily (~2003–2020)', notes: 'Flagship JNB–JFK A346 route. ZS-SND/F/G confirmed regulars on JFK. One of world\'s longest A346 routes.',
+    configs: { first: 8, business: 42, premium: 0, economy: 258 }, lat: 40.6413, lon: -73.7781 },
+  { id: 'sa-jnb-fra', airline: 'SA', hub: 'JNB', hubFull: 'Johannesburg OR Tambo', dest: 'FRA', destFull: 'Frankfurt', country: 'Germany', region: 'Europe',
+    flightNum: 'SA 261/262', depTime: '20:45', depUTC: '18:45', arrTime: '07:15+1', arrUTC: '07:15', depTZ: 'SAST (UTC+2)', arrTZ: 'CET (UTC+1)',
+    duration: '10h 30m', durationMin: 630, distance: '8663 km / 5385 mi', distanceKm: 8663,
+    status: 'retired', aircraft: ['ZS-SNC','ZS-SNB','ZS-SNA'],
+    frequency: 'Daily (~2003–2020)', notes: 'ZS-SNC (Star Alliance livery) confirmed FRA–JNB May 2011. Trip report documents SA261.',
+    configs: { first: 8, business: 42, premium: 0, economy: 258 }, lat: 50.0379, lon: 8.5622 },
+  { id: 'sa-jnb-lhr', airline: 'SA', hub: 'JNB', hubFull: 'Johannesburg OR Tambo', dest: 'LHR', destFull: 'London Heathrow', country: 'United Kingdom', region: 'Europe',
+    flightNum: 'SA 235/236', depTime: '19:40', depUTC: '17:40', arrTime: '07:35+1', arrUTC: '07:35', depTZ: 'SAST (UTC+2)', arrTZ: 'GMT (UTC+0)',
+    duration: '11h 55m', durationMin: 715, distance: '9075 km / 5640 mi', distanceKm: 9075,
+    status: 'retired', aircraft: ['ZS-SNA','ZS-SNB','ZS-SND'],
+    frequency: 'Daily (~2003–2020)', notes: 'ZS-SNB spotted LHR 2012. ZS-SNA at JNB 2018.',
+    configs: { first: 8, business: 42, premium: 0, economy: 258 }, lat: 51.4775, lon: -0.4614 },
+  { id: 'sa-jnb-muc', airline: 'SA', hub: 'JNB', hubFull: 'Johannesburg OR Tambo', dest: 'MUC', destFull: 'Munich', country: 'Germany', region: 'Europe',
+    flightNum: 'SA 267/268', depTime: '19:00', depUTC: '17:00', arrTime: '06:55+1', arrUTC: '05:55', depTZ: 'SAST (UTC+2)', arrTZ: 'CET (UTC+1)',
+    duration: '10h 55m', durationMin: 655, distance: '8876 km / 5515 mi', distanceKm: 8876,
+    status: 'retired', aircraft: ['ZS-SNB','ZS-SNC'],
+    frequency: '~2003–2019', notes: 'ZS-SNB spotted MUC Mar 2017 and Apr 2012. Confirmed route per FR24 blog.',
+    configs: { first: 8, business: 42, premium: 0, economy: 258 }, lat: 48.3538, lon: 11.7861 },
+  { id: 'sa-jnb-hkg', airline: 'SA', hub: 'JNB', hubFull: 'Johannesburg OR Tambo', dest: 'HKG', destFull: 'Hong Kong International', country: 'Hong Kong', region: 'Asia',
+    flightNum: 'SA 287/288', depTime: '20:25', depUTC: '18:25', arrTime: '14:00+1', arrUTC: '06:00', depTZ: 'SAST (UTC+2)', arrTZ: 'HKT (UTC+8)',
+    duration: '13h 35m', durationMin: 815, distance: '10672 km / 6630 mi', distanceKm: 10672,
+    status: 'retired', aircraft: ['ZS-SNB','ZS-SND'],
+    frequency: 'Until Oct 30, 2019', notes: 'FR24 blog confirms JNB–HKG until Oct 30, 2019 with A340. ZS-SNB spotted HKG Feb 2014.',
+    configs: { first: 8, business: 42, premium: 0, economy: 258 }, lat: 22.3080, lon: 113.9185 },
+  { id: 'sa-jnb-per', airline: 'SA', hub: 'JNB', hubFull: 'Johannesburg OR Tambo', dest: 'PER', destFull: 'Perth International', country: 'Australia', region: 'Asia',
+    flightNum: 'SA 281/282', depTime: '18:10', depUTC: '16:10', arrTime: '07:00+1', arrUTC: '23:00', depTZ: 'SAST (UTC+2)', arrTZ: 'AWST (UTC+8)',
+    duration: '10h 50m', durationMin: 650, distance: '8189 km / 5089 mi', distanceKm: 8189,
+    status: 'retired', aircraft: ['ZS-SNB','ZS-SNC'],
+    frequency: '~2004–2015', notes: 'ZS-SNB spotted PER May 2013. ZS-SNC PER also confirmed.',
+    configs: { first: 8, business: 42, premium: 0, economy: 258 }, lat: -31.9385, lon: 115.9672 },
+  { id: 'sa-jnb-iad', airline: 'SA', hub: 'JNB', hubFull: 'Johannesburg OR Tambo', dest: 'IAD', destFull: 'Washington Dulles (via Dakar)', country: 'USA', region: 'North America',
+    flightNum: 'SA 209/210', depTime: '17:10', depUTC: '15:10', arrTime: '08:05+1', arrUTC: '13:05', depTZ: 'SAST (UTC+2)', arrTZ: 'EST (UTC-5)',
+    duration: '19h 55m + stop', durationMin: 1195, distance: '14200 km / 8824 mi', distanceKm: 14200,
+    status: 'retired', aircraft: ['ZS-SND','ZS-SNE','ZS-SNF'],
+    frequency: 'Daily 2006–2019 (via Dakar)', notes: 'JNB–DKR–IAD. Started with 747-400 in 2005; A346 from 2006 per Wikipedia. Dakar stop replaced Accra.',
+    configs: { first: 8, business: 42, premium: 0, economy: 258 }, lat: 38.9531, lon: -77.4565 },
+  { id: 'sa-jnb-gru', airline: 'SA', hub: 'JNB', hubFull: 'Johannesburg OR Tambo', dest: 'GRU', destFull: 'São Paulo Guarulhos', country: 'Brazil', region: 'South America',
+    flightNum: 'SA 222/223', depTime: '21:00', depUTC: '19:00', arrTime: '06:30+1', arrUTC: '09:30', depTZ: 'SAST (UTC+2)', arrTZ: 'BRT (UTC-3)',
+    duration: '10h 30m', durationMin: 630, distance: '7756 km / 4820 mi', distanceKm: 7756,
+    status: 'retired', aircraft: ['ZS-SNA','ZS-SNH'],
+    frequency: '~2005–2019', notes: 'JNB–GRU confirmed per FR24 blog. SAA had routes to SA on multiple continents.',
+    configs: { first: 8, business: 42, premium: 0, economy: 258 }, lat: -23.4356, lon: -46.4731 },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // IBERIA (IB) — Hub: MAD — 18 frames, 2003–2020
+  // ════════════════════════════════════════════════════════════════════════
+  { id: 'ib-mad-jfk', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'JFK', destFull: 'New York JFK', country: 'USA', region: 'North America',
+    flightNum: 'IB 6251/6250', depTime: '11:55', depUTC: '10:55', arrTime: '14:50', arrUTC: '19:50', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '8h 55m', durationMin: 535, distance: '5784 km / 3594 mi', distanceKm: 5784,
+    status: 'retired', aircraft: ['EC-KZI','EC-JFX','EC-JBA'],
+    frequency: 'Daily (~2003–2020)', notes: 'JFK among top-10 IB A346 destinations from MAD. Confirmed A346 per Jan 2020 data.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: 40.6413, lon: -73.7781 },
+  { id: 'ib-mad-mia', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'MIA', destFull: 'Miami International', country: 'USA', region: 'North America',
+    flightNum: 'IB 6197/6196', depTime: '12:10', depUTC: '11:10', arrTime: '15:45', arrUTC: '20:45', depTZ: 'CET (UTC+1)', arrTZ: 'EST (UTC-5)',
+    duration: '9h 35m', durationMin: 575, distance: '7195 km / 4473 mi', distanceKm: 7195,
+    status: 'retired', aircraft: ['EC-JCY','EC-JCZ','EC-JBA'],
+    frequency: 'Daily (~2003–2020)', notes: 'MIA among top IB A346 destinations per OAG data.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: 25.7959, lon: -80.2870 },
+  { id: 'ib-mad-bog', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'BOG', destFull: 'Bogotá El Dorado', country: 'Colombia', region: 'South America',
+    flightNum: 'IB 6315/6314', depTime: '12:30', depUTC: '11:30', arrTime: '17:45', arrUTC: '22:45', depTZ: 'CET (UTC+1)', arrTZ: 'COT (UTC-5)',
+    duration: '11h 15m', durationMin: 675, distance: '8540 km / 5308 mi', distanceKm: 8540,
+    status: 'retired', aircraft: ['EC-JNQ','EC-JPU','EC-JLE'],
+    frequency: 'Daily (~2003–2020)', notes: 'BOG top-5 destination from MAD on A346 per OAG.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: 4.7016, lon: -74.1469 },
+  { id: 'ib-mad-gru', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'GRU', destFull: 'São Paulo Guarulhos', country: 'Brazil', region: 'South America',
+    flightNum: 'IB 6555/6554', depTime: '13:45', depUTC: '12:45', arrTime: '21:10', arrUTC: '00:10+1', depTZ: 'CET (UTC+1)', arrTZ: 'BRT (UTC-3)',
+    duration: '11h 25m', durationMin: 685, distance: '9335 km / 5802 mi', distanceKm: 9335,
+    status: 'retired', aircraft: ['EC-IQR','EC-IZY','EC-LEU'],
+    frequency: 'Daily (~2003–2020)', notes: 'GRU top-2 destination from MAD on A346. 5,096 mi average sector length per OAG.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: -23.4356, lon: -46.4731 },
+  { id: 'ib-mad-mex', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'MEX', destFull: 'Mexico City', country: 'Mexico', region: 'North America',
+    flightNum: 'IB 6401/6400', depTime: '12:45', depUTC: '11:45', arrTime: '17:25', arrUTC: '23:25', depTZ: 'CET (UTC+1)', arrTZ: 'CST (UTC-6)',
+    duration: '11h 40m', durationMin: 700, distance: '9052 km / 5625 mi', distanceKm: 9052,
+    status: 'retired', aircraft: ['EC-JLE','EC-LFS','EC-LCZ'],
+    frequency: 'Daily (~2003–2020)', notes: 'MEX top-3 A346 destination from MAD per OAG data. EC-LFS reg: "Ciudad de México".',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: 19.4363, lon: -99.0721 },
+  { id: 'ib-mad-lim', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'LIM', destFull: 'Lima Jorge Chávez', country: 'Peru', region: 'South America',
+    flightNum: 'IB 6845/6844', depTime: '13:00', depUTC: '12:00', arrTime: '19:20', arrUTC: '00:20+1', depTZ: 'CET (UTC+1)', arrTZ: 'PET (UTC-5)',
+    duration: '12h 20m', durationMin: 740, distance: '10018 km / 6227 mi', distanceKm: 10018,
+    status: 'retired', aircraft: ['EC-JCZ','EC-JPU','EC-LEV'],
+    frequency: 'Daily (~2003–2020)', notes: 'LIM top-5 destination from MAD on A346 per OAG.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: -12.0219, lon: -77.1143 },
+  { id: 'ib-mad-bue', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'EZE', destFull: 'Buenos Aires Ezeiza', country: 'Argentina', region: 'South America',
+    flightNum: 'IB 6841/6840', depTime: '14:00', depUTC: '13:00', arrTime: '04:30+1', arrUTC: '07:30', depTZ: 'CET (UTC+1)', arrTZ: 'ART (UTC-3)',
+    duration: '14h 30m', durationMin: 870, distance: '10051 km / 6247 mi', distanceKm: 10051,
+    status: 'retired', aircraft: ['EC-IQR','EC-LEV','EC-LEU'],
+    frequency: 'Daily (~2003–2020)', notes: 'BUE (EZE) top-1 A346 destination from MAD per OAG.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: -34.8222, lon: -58.5358 },
+  { id: 'ib-mad-scl', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'SCL', destFull: 'Santiago Arturo Merino Benítez', country: 'Chile', region: 'South America',
+    flightNum: 'IB 6821/6820', depTime: '13:30', depUTC: '12:30', arrTime: '02:55+1', arrUTC: '05:55', depTZ: 'CET (UTC+1)', arrTZ: 'CLT (UTC-3)',
+    duration: '13h 25m', durationMin: 805, distance: '10468 km / 6505 mi', distanceKm: 10468,
+    status: 'retired', aircraft: ['EC-JBA','EC-JCY','EC-IQR'],
+    frequency: 'Daily (~2003–2020)', notes: 'SCL started Jan 1998 (A340-300). A346 took over from ~2003. Iberia\'s longest route.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: -33.3930, lon: -70.7858 },
+  { id: 'ib-mad-uio', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'UIO', destFull: 'Quito Mariscal Sucre', country: 'Ecuador', region: 'South America',
+    flightNum: 'IB 6307/6306', depTime: '12:55', depUTC: '11:55', arrTime: '18:05', arrUTC: '23:05', depTZ: 'CET (UTC+1)', arrTZ: 'ECT (UTC-5)',
+    duration: '11h 10m', durationMin: 670, distance: '8781 km / 5458 mi', distanceKm: 8781,
+    status: 'retired', aircraft: ['EC-JOH','EC-JLE','EC-JCZ'],
+    frequency: 'Daily (~2003–2020)', notes: 'EC-JOH damaged in Quito runway overrun Nov 2007. EC-JLE made last-ever IB A346 flight from UIO, Aug 1, 2020.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: -0.1292, lon: -78.3575 },
+  { id: 'ib-mad-lhr', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'LHR', destFull: 'London Heathrow', country: 'United Kingdom', region: 'Europe',
+    flightNum: 'IB 3167/3166', depTime: '09:30', depUTC: '08:30', arrTime: '10:45', arrUTC: '10:45', depTZ: 'CET (UTC+1)', arrTZ: 'GMT (UTC+0)',
+    duration: '2h 15m', durationMin: 135, distance: '1264 km / 785 mi', distanceKm: 1264,
+    status: 'retired', aircraft: ['EC-JFX','EC-JPU','EC-LEU'],
+    frequency: 'Multiple daily', notes: 'LHR most frequent A346 port outside MAD per OAG. EC-JFX & EC-JPU spotted LHR. Often positioned before LATAM connections.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: 51.4775, lon: -0.4614 },
+  { id: 'ib-mad-nrt', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'NRT', destFull: 'Tokyo Narita', country: 'Japan', region: 'Asia',
+    flightNum: 'IB 6401/6400', depTime: '12:55', depUTC: '11:55', arrTime: '09:40+1', arrUTC: '00:40', depTZ: 'CET (UTC+1)', arrTZ: 'JST (UTC+9)',
+    duration: '13h 45m', durationMin: 825, distance: '10842 km / 6737 mi', distanceKm: 10842,
+    status: 'retired', aircraft: ['EC-LEV','EC-LFS','EC-LCZ'],
+    frequency: 'From 2016; until 2020', notes: 'IB A346 NRT resumed in 2016. Iberia blog confirms A346 first opened NRT in 2016.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: 35.7648, lon: 140.3864 },
+  { id: 'ib-mad-sdq', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'SDQ', destFull: 'Santo Domingo Las Américas', country: 'Dominican Republic', region: 'North America',
+    flightNum: 'IB 6521/6520', depTime: '12:20', depUTC: '11:20', arrTime: '16:50', arrUTC: '21:50', depTZ: 'CET (UTC+1)', arrTZ: 'AST (UTC-4)',
+    duration: '9h 30m', durationMin: 570, distance: '7254 km / 4508 mi', distanceKm: 7254,
+    status: 'retired', aircraft: ['EC-IQR','EC-IZY'],
+    frequency: 'Daily (~2003–2020)', notes: 'SDQ among destinations served by first IB A340s. Per Iberia blog, A340 first used MAD–SDQ.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: 18.4296, lon: -69.6688 },
+  { id: 'ib-mad-car', airline: 'IB', hub: 'MAD', hubFull: 'Madrid Barajas', dest: 'CCS', destFull: 'Caracas Simón Bolívar', country: 'Venezuela', region: 'South America',
+    flightNum: 'IB 6791/6790', depTime: '12:10', depUTC: '11:10', arrTime: '17:30', arrUTC: '22:30', depTZ: 'CET (UTC+1)', arrTZ: 'VET (UTC-4)',
+    duration: '10h 20m', durationMin: 620, distance: '7699 km / 4785 mi', distanceKm: 7699,
+    status: 'retired', aircraft: ['EC-IZY','EC-JCZ','EC-JNQ'],
+    frequency: '~2003–2019', notes: 'CCS (Caracas) listed among IB A346 top-10 destinations per OAG data.',
+    configs: { first: 0, business: 46, premium: 0, economy: 300 }, lat: 10.6031, lon: -66.9910 },
 ];
+
+// Legacy alias for backward compat
+const ROUTES = ALL_ROUTES;
 
 // ============================================================
 // STATE
 // ============================================================
-let filters = { hub: 'all', status: 'all', region: 'all' };
+let filters = { status: 'all', region: 'all' };
+let selectedAirline = 'all';
 let searchQuery = '';
 let sortKey = 'status';
 let sortDir = 1;
@@ -1451,8 +1712,8 @@ let selectedRouteId = null;
 // ============================================================
 
 function getFiltered() {
-  let data = ROUTES.filter(r => {
-    if (filters.hub !== 'all' && r.hub !== filters.hub) return false;
+  let data = ALL_ROUTES.filter(r => {
+    if (selectedAirline !== 'all' && r.airline !== selectedAirline) return false;
     if (filters.status !== 'all' && r.status !== filters.status) return false;
     if (filters.region !== 'all' && r.region !== filters.region) return false;
     if (searchQuery) {
@@ -1461,7 +1722,9 @@ function getFiltered() {
              r.destFull.toLowerCase().includes(q) ||
              r.country.toLowerCase().includes(q) ||
              r.flightNum.toLowerCase().includes(q) ||
-             r.hub.toLowerCase().includes(q);
+             r.hub.toLowerCase().includes(q) ||
+             r.airline.toLowerCase().includes(q) ||
+             (AIRLINES[r.airline] && AIRLINES[r.airline].name.toLowerCase().includes(q));
     }
     return true;
   });
@@ -1470,14 +1733,31 @@ function getFiltered() {
     let av = a[sortKey] || '';
     let bv = b[sortKey] || '';
     if (typeof av === 'number') return (av - bv) * sortDir;
-    return av.localeCompare(bv) * sortDir;
+    return av.toString().localeCompare(bv.toString()) * sortDir;
   });
   return data;
 }
 
+function selectAirline(code, btn) {
+  selectedAirline = code;
+  document.querySelectorAll('.airline-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateHeaderStats();
+  renderRoutes();
+  if (document.getElementById('view-map').classList.contains('active')) renderMap();
+  if (document.getElementById('view-fleet').classList.contains('active')) renderFleet();
+  if (document.getElementById('view-stats').classList.contains('active')) renderStats();
+}
+
+function updateHeaderStats() {
+  const relevantAircraft = selectedAirline === 'all' ? ALL_AIRCRAFT : ALL_AIRCRAFT.filter(a => a.airline === selectedAirline);
+  const relevantRoutes = selectedAirline === 'all' ? ALL_ROUTES : ALL_ROUTES.filter(r => r.airline === selectedAirline);
+  document.getElementById('stat-routes').textContent = relevantRoutes.length;
+  document.getElementById('stat-aircraft').textContent = relevantAircraft.length;
+}
+
 function setFilter(type, value, btn) {
   filters[type] = value;
-  // update button group
   btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderRoutes();
@@ -1513,29 +1793,32 @@ function switchView(name, btn) {
 function renderRoutes() {
   const data = getFiltered();
   const tbody = document.getElementById('routeBody');
+  const total = selectedAirline === 'all' ? ALL_ROUTES.length : ALL_ROUTES.filter(r => r.airline === selectedAirline).length;
   document.getElementById('resultCount').innerHTML =
-    `Showing <span>${data.length}</span> of <span>${ROUTES.length}</span> routes`;
-  document.getElementById('stat-routes').textContent = ROUTES.length;
+    `Showing <span>${data.length}</span> of <span>${total}</span> routes`;
+  updateHeaderStats();
 
   if (data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">✈</div><p>No routes match the current filters.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">✈</div><p>No routes match the current filters.</p></div></td></tr>`;
     return;
   }
 
   tbody.innerHTML = data.map(r => {
     const statusClass = r.status === 'active' ? 'status-active' : r.status === 'seasonal' ? 'status-seasonal' : 'status-retired';
     const statusLabel = r.status === 'active' ? 'Active' : r.status === 'seasonal' ? 'Seasonal' : 'Retired';
-    const tailHtml = r.aircraft.slice(0, 2).map(a => {
-      const ac = AIRCRAFT.find(x => x.reg === a);
-      return `<span class="tail-cell">${a}<span class="tail-name">${ac ? ac.name : ''}</span></span>`;
+    const airlineInfo = AIRLINES[r.airline] || {};
+    const tailHtml = r.aircraft.slice(0, 2).map(reg => {
+      const ac = ALL_AIRCRAFT.find(x => x.reg === reg);
+      return `<span class="tail-cell">${reg}<span class="tail-name">${ac ? ac.name : ''}</span></span>`;
     }).join('');
 
     return `<tr onclick="openPanel('${r.id}')" class="${selectedRouteId === r.id ? 'selected' : ''}">
+      <td><span class="airline-tag at-${r.airline}">${r.airline}</span></td>
       <td>
         <span class="route-code">${r.dest}</span>
         <span class="flight-num">${r.flightNum}</span>
       </td>
-      <td><span class="hub-badge hub-${r.hub.toLowerCase()}">${r.hub}</span></td>
+      <td><span class="hub-badge hub-${r.hub.toLowerCase().replace(/\s/g,'')}">${r.hub}</span></td>
       <td>
         <div class="destination-name">${r.destFull}</div>
         <div class="destination-country">${r.country}</div>
@@ -1550,7 +1833,7 @@ function renderRoutes() {
       </td>
       <td class="duration-cell">${r.duration}</td>
       <td class="distance-cell">${r.distanceKm.toLocaleString()} km</td>
-      <td>${tailHtml}${r.aircraft.length > 2 ? `<span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim)">+${r.aircraft.length-2} more</span>` : ''}</td>
+      <td>${tailHtml}${r.aircraft.length > 2 ? `<span style="font-family:'Space Mono',monospace;font-size:9px;color:var(--text-dim)">+${r.aircraft.length-2}</span>` : ''}</td>
       <td><span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusLabel}</span></td>
     </tr>`;
   }).join('');
@@ -1569,17 +1852,19 @@ function openPanel(id) {
   const statusLabel = r.status.charAt(0).toUpperCase() + r.status.slice(1);
   const total = r.configs.first + r.configs.business + r.configs.premium + r.configs.economy;
 
+  const airlineInfo = AIRLINES[r.airline] || {};
+  const airlineColor = airlineInfo.color || 'var(--gold)';
+
   const aircraftCards = r.aircraft.map(reg => {
-    const ac = AIRCRAFT.find(x => x.reg === reg);
+    const ac = ALL_AIRCRAFT.find(x => x.reg === reg);
     if (!ac) return '';
     return `<div class="aircraft-card">
       <div class="aircraft-reg">${ac.reg}</div>
-      <div class="aircraft-name-label">"${ac.name}"</div>
+      <div class="aircraft-name-label">${ac.name && ac.name !== '—' ? '"' + ac.name + '"' : '—'}</div>
       <div class="aircraft-meta">
         <div class="aircraft-meta-item">MSN<span>${ac.msn}</span></div>
         <div class="aircraft-meta-item">Delivered<span>${ac.delivered}</span></div>
         <div class="aircraft-meta-item">Base<span>${ac.base}</span></div>
-        <div class="aircraft-meta-item">Cycles<span>~${ac.cycles.toLocaleString()}</span></div>
       </div>
     </div>`;
   }).join('');
@@ -1587,6 +1872,7 @@ function openPanel(id) {
   document.getElementById('detailContent').innerHTML = `
     <div class="detail-route-header">
       <div>
+        <div style="margin-bottom:6px"><span class="airline-tag at-${r.airline}" style="font-size:11px;padding:3px 10px">${r.airline} · ${airlineInfo.name || ''}</span></div>
         <div class="detail-airports">${r.hub} <span>→</span> ${r.dest}</div>
         <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:4px">${r.flightNum} · ${r.hubFull} → ${r.destFull}</div>
       </div>
@@ -1671,48 +1957,57 @@ function closePanel() {
 
 function renderFleet() {
   const grid = document.getElementById('fleetGrid');
+  const aircraftToShow = selectedAirline === 'all' ? ALL_AIRCRAFT : ALL_AIRCRAFT.filter(a => a.airline === selectedAirline);
 
-  grid.innerHTML = AIRCRAFT.map(ac => {
-    const routesForAc = ROUTES.filter(r => r.aircraft.includes(ac.reg));
-    const statusClass = ac.status === 'active' ? 'status-active' : ac.status === 'stored' ? 'status-seasonal' : 'status-retired';
-    const statusLabel = ac.status.charAt(0).toUpperCase() + ac.status.slice(1);
+  // Group by airline
+  const grouped = {};
+  aircraftToShow.forEach(ac => {
+    if (!grouped[ac.airline]) grouped[ac.airline] = [];
+    grouped[ac.airline].push(ac);
+  });
 
-    return `<div class="fleet-card" onclick="openPanel(${routesForAc.length ? "'" + routesForAc[0].id + "'" : 'null'})">
-      <div class="fleet-card-top">
-        <div>
-          <div class="fc-reg">${ac.reg}</div>
-          <div class="fc-name">"${ac.name}"</div>
-        </div>
-        <div class="fc-status">
-          <div class="fc-msn">MSN ${ac.msn}</div>
-          <span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusLabel}</span>
-        </div>
-      </div>
-      <div class="fleet-card-body">
-        <div class="fc-meta-grid">
-          <div class="fc-meta-item">
-            <div class="fc-meta-label">Delivered</div>
-            <div class="fc-meta-value">${ac.delivered}</div>
+  grid.innerHTML = Object.entries(grouped).map(([code, planes]) => {
+    const info = AIRLINES[code] || {};
+    const color = info.color || 'var(--gold)';
+
+    const cards = planes.map(ac => {
+      const routesForAc = ALL_ROUTES.filter(r => r.aircraft.includes(ac.reg));
+      const statusClass = ac.status === 'active' ? 'status-active' : ac.status === 'stored' ? 'status-seasonal' : 'status-retired';
+      const statusLabel = ac.status.charAt(0).toUpperCase() + ac.status.slice(1);
+
+      return `<div class="fleet-card" onclick="${routesForAc.length ? "openPanel('" + routesForAc[0].id + "')" : 'void(0)'}">
+        <div class="fleet-card-top">
+          <div>
+            <div class="fc-reg">${ac.reg}</div>
+            <div class="fc-name">${ac.name && ac.name !== '—' ? '"' + ac.name + '"' : '—'}</div>
           </div>
-          <div class="fc-meta-item">
-            <div class="fc-meta-label">Base</div>
-            <div class="fc-meta-value">${ac.base}</div>
-          </div>
-          <div class="fc-meta-item">
-            <div class="fc-meta-label">Variant</div>
-            <div class="fc-meta-value">A340-642</div>
-          </div>
-          <div class="fc-meta-item">
-            <div class="fc-meta-label">Approx. Cycles</div>
-            <div class="fc-meta-value mono">~${ac.cycles.toLocaleString()}</div>
+          <div class="fc-status">
+            <div class="fc-msn">MSN ${ac.msn}</div>
+            <span class="status-badge ${statusClass}"><span class="status-dot"></span>${statusLabel}</span>
           </div>
         </div>
-        ${routesForAc.length > 0 ? `<div class="fc-routes">
-          <div class="fc-routes-label">Known Route Assignments</div>
-          <div class="fc-route-tags">${routesForAc.map(r => `<span class="fc-route-tag">${r.hub}→${r.dest}</span>`).join('')}</div>
-        </div>` : '<div style="font-size:12px;color:var(--text-dim);font-style:italic">No route data linked</div>'}
-      </div>
-    </div>`;
+        <div class="fleet-card-body">
+          <div class="fc-meta-grid">
+            <div class="fc-meta-item"><div class="fc-meta-label">Delivered</div><div class="fc-meta-value">${ac.delivered}</div></div>
+            <div class="fc-meta-item"><div class="fc-meta-label">Base</div><div class="fc-meta-value">${ac.base}</div></div>
+            <div class="fc-meta-item"><div class="fc-meta-label">Variant</div><div class="fc-meta-value">A340-642</div></div>
+            <div class="fc-meta-item"><div class="fc-meta-label">Airline</div><div class="fc-meta-value"><span class="airline-tag at-${code}">${code}</span></div></div>
+          </div>
+          ${routesForAc.length > 0 ? `<div class="fc-routes">
+            <div class="fc-routes-label">Known Route Assignments</div>
+            <div class="fc-route-tags">${routesForAc.slice(0,8).map(r => `<span class="fc-route-tag">${r.hub}→${r.dest}</span>`).join('')}${routesForAc.length > 8 ? `<span style="font-size:9px;color:var(--text-dim)">+${routesForAc.length-8}</span>` : ''}</div>
+          </div>` : '<div style="font-size:12px;color:var(--text-dim);font-style:italic">No route data linked</div>'}
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div style="grid-column:1/-1;margin-bottom:4px;margin-top:20px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:14px">
+      <span class="airline-tag at-${code}" style="font-size:11px;padding:4px 12px">${code}</span>
+      <span style="font-family:'Playfair Display',serif;font-size:18px;color:var(--text)">${info.name || code}</span>
+      <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim)">${planes.length} aircraft</span>
+      ${info.note ? `<span style="font-size:11px;color:var(--text-dim);font-style:italic;margin-left:auto">${info.note}</span>` : ''}
+    </div>
+    ${cards}`;
   }).join('');
 }
 
@@ -1742,47 +2037,68 @@ function renderMap() {
   const W = container.clientWidth || 900;
   const H = 580;
 
-  const hubs = [
-    { code: 'FRA', lat: 50.0379, lon: 8.5622, name: 'Frankfurt' },
-    { code: 'MUC', lat: 48.3538, lon: 11.7861, name: 'Munich' },
-  ];
-
   const data = getFiltered();
+
+  // Collect unique hubs from filtered routes
+  const hubMap = {
+    FRA: { lat: 50.0379, lon: 8.5622,  name: 'Frankfurt' },
+    MUC: { lat: 48.3538, lon: 11.7861, name: 'Munich' },
+    LHR: { lat: 51.4775, lon: -0.4614, name: 'London' },
+    HKG: { lat: 22.3080, lon: 113.9185, name: 'Hong Kong' },
+    JNB: { lat: -26.1367, lon: 28.2411, name: 'Johannesburg' },
+    MAD: { lat: 40.4983, lon: -3.5676, name: 'Madrid' },
+  };
+
+  const airlineColors = { LH: '#4A90D9', VS: '#E8365D', CX: '#00A89C', SA: '#F5A623', IB: '#D4222A' };
+
   const uniq = {};
-  data.forEach(r => uniq[r.id] = r);
+  data.forEach(r => { if (!uniq[r.id]) uniq[r.id] = r; });
   const routes = Object.values(uniq);
 
   let pathsSVG = '';
   let dotsSVG = '';
-  const seen = new Set();
+  const seenDest = new Set();
+  const seenHubs = new Set();
 
   routes.forEach(r => {
-    const hub = hubs.find(h => h.code === r.hub);
+    const hub = hubMap[r.hub];
     if (!hub) return;
+    seenHubs.add(r.hub);
     const p1 = project(hub.lat, hub.lon, W, H);
     const p2 = project(r.lat, r.lon, W, H);
-
-    const cls = r.status === 'active' ? 'active-route' : r.status === 'seasonal' ? 'seasonal-route' : 'retired-route';
+    const color = airlineColors[r.airline] || '#C9A84C';
+    const opacity = r.status === 'active' ? 0.9 : r.status === 'seasonal' ? 0.55 : 0.2;
+    const strokeW = r.status === 'active' ? 1.5 : 1;
+    const dash = r.status === 'retired' ? 'stroke-dasharray="3,4"' : '';
     const dLen = Math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2) * 4;
-    pathsSVG += `<path class="route-path ${cls}" d="${quadraticCurve(p1.x, p1.y, p2.x, p2.y)}" stroke-dasharray="${dLen}" stroke-dashoffset="${dLen}" style="animation-delay:${Math.random()*0.5}s;animation-fill-mode:forwards"/>`;
 
-    if (!seen.has(r.dest)) {
-      seen.add(r.dest);
-      const dotCls = r.status === 'active' ? 'active-dot' : r.status === 'seasonal' ? 'seasonal-dot' : 'retired-dot';
-      dotsSVG += `<circle class="dest-dot ${dotCls}" cx="${p2.x}" cy="${p2.y}" r="4"
-        onmouseenter="showTooltip(event,'${r.destFull}','${r.flightNum} · ${r.duration} · ${r.distanceKm} km')"
+    pathsSVG += `<path class="route-path" d="${quadraticCurve(p1.x, p1.y, p2.x, p2.y)}"
+      stroke="${color}" stroke-width="${strokeW}" stroke-opacity="${opacity}" fill="none" ${dash}
+      stroke-dasharray="${dLen}" stroke-dashoffset="${dLen}"
+      style="animation:drawRoute 1s ease forwards;animation-delay:${Math.random()*0.6}s"/>`;
+
+    const destKey = r.dest + r.airline;
+    if (!seenDest.has(destKey)) {
+      seenDest.add(destKey);
+      const r2 = r.status === 'active' ? 4.5 : 3;
+      dotsSVG += `<circle cx="${p2.x}" cy="${p2.y}" r="${r2}"
+        fill="${color}" fill-opacity="${opacity}" stroke="${color}" stroke-width="1"
+        style="cursor:pointer"
+        onmouseenter="showTooltip(event,'[${r.airline}] ${r.destFull}','${r.flightNum} · ${r.duration} · ${r.distanceKm.toLocaleString()} km')"
         onmouseleave="hideTooltip()"
         onclick="openPanel('${r.id}')"/>`;
     }
   });
 
-  const hubDots = hubs.map(h => {
-    const p = project(h.lat, h.lon, W, H);
-    return `<circle class="hub-dot" cx="${p.x}" cy="${p.y}" r="6"/>
-    <text x="${p.x+9}" y="${p.y+4}" fill="var(--gold)" font-family="Space Mono" font-size="10" letter-spacing="1">${h.code}</text>`;
-  }).join('');
+  // Hub dots (only for hubs visible in filtered data)
+  const hubDots = Object.entries(hubMap)
+    .filter(([code]) => seenHubs.has(code) || routes.some(r => r.hub === code))
+    .map(([code, h]) => {
+      const p = project(h.lat, h.lon, W, H);
+      return `<circle cx="${p.x}" cy="${p.y}" r="6" fill="var(--gold)" stroke="#0A0C0F" stroke-width="2"/>
+      <text x="${p.x+9}" y="${p.y+4}" fill="var(--gold)" font-family="Space Mono" font-size="10" letter-spacing="1">${code}</text>`;
+    }).join('');
 
-  // Simple world outline - just borders approximated as svg rect + graticules
   const graticules = [];
   for (let lon = -180; lon <= 180; lon += 30) {
     const px = project(0, lon, W, H);
@@ -1792,32 +2108,23 @@ function renderMap() {
     const py = project(lat, 0, W, H);
     graticules.push(`<line x1="0" y1="${py.y}" x2="${W}" y2="${py.y}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>`);
   }
-
-  // Equator & prime meridian
   const eq = project(0, 0, W, H);
   graticules.push(`<line x1="0" y1="${eq.y}" x2="${W}" y2="${eq.y}" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4,4"/>`);
 
   container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
     <defs>
       <radialGradient id="mapBg" cx="50%" cy="50%" r="70%">
-        <stop offset="0%" stop-color="#111827"/>
-        <stop offset="100%" stop-color="#0A0C0F"/>
+        <stop offset="0%" stop-color="#111827"/><stop offset="100%" stop-color="#0A0C0F"/>
       </radialGradient>
+      <style>@keyframes drawRoute { to { stroke-dashoffset: 0; } }</style>
     </defs>
     <rect width="${W}" height="${H}" fill="url(#mapBg)"/>
     ${graticules.join('')}
-    <!-- Continent shapes (simplified polygons) -->
-    <!-- North America -->
     <polygon points="${[[-170,72],[-140,72],[-120,55],[-100,50],[-80,50],[-70,45],[-65,25],[-85,15],[-105,25],[-120,25],[-125,35],[-140,58],[-160,60],[-170,60]].map(([lo,la])=>{const p=project(la,lo,W,H);return p.x+','+p.y}).join(' ')}" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-    <!-- South America -->
     <polygon points="${[[-80,13],[-65,12],[-55,5],[-50,-5],[-35,-8],[-35,-25],[-50,-35],[-65,-55],[-70,-55],[-75,-40],[-80,-13],[-80,0]].map(([lo,la])=>{const p=project(la,lo,W,H);return p.x+','+p.y}).join(' ')}" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-    <!-- Europe -->
     <polygon points="${[[-10,60],[0,50],[10,45],[20,42],[30,45],[35,50],[25,60],[15,58],[0,60]].map(([lo,la])=>{const p=project(la,lo,W,H);return p.x+','+p.y}).join(' ')}" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-    <!-- Africa -->
     <polygon points="${[[-18,16],[10,36],[35,30],[40,10],[40,-5],[35,-25],[25,-35],[15,-35],[0,-20],[-18,0],[-18,16]].map(([lo,la])=>{const p=project(la,lo,W,H);return p.x+','+p.y}).join(' ')}" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-    <!-- Asia -->
     <polygon points="${[[25,75],[60,75],[90,70],[130,70],[145,60],[140,40],[125,25],[100,15],[80,15],[60,25],[45,42],[35,50],[30,55],[25,60]].map(([lo,la])=>{const p=project(la,lo,W,H);return p.x+','+p.y}).join(' ')}" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
-    <!-- Australia -->
     <polygon points="${[[115,-22],[125,-18],[135,-13],[145,-18],[150,-35],[145,-40],[135,-35],[125,-35],[115,-30]].map(([lo,la])=>{const p=project(la,lo,W,H);return p.x+','+p.y}).join(' ')}" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
     ${pathsSVG}
     ${dotsSVG}
@@ -1843,56 +2150,85 @@ function hideTooltip() {
 // ============================================================
 
 function renderStats() {
-  const active = ROUTES.filter(r => r.status === 'active').length;
-  const seasonal = ROUTES.filter(r => r.status === 'seasonal').length;
-  const retired = ROUTES.filter(r => r.status === 'retired').length;
-  const totalFleet = AIRCRAFT.filter(a => a.status === 'active').length;
-  const avgDist = Math.round(ROUTES.reduce((s,r) => s+r.distanceKm, 0) / ROUTES.length);
-  const longest = ROUTES.reduce((a,b) => a.distanceKm > b.distanceKm ? a : b);
-  const shortest = ROUTES.reduce((a,b) => a.distanceKm < b.distanceKm ? a : b);
+  const src = selectedAirline === 'all' ? ALL_ROUTES : ALL_ROUTES.filter(r => r.airline === selectedAirline);
+  const acSrc = selectedAirline === 'all' ? ALL_AIRCRAFT : ALL_AIRCRAFT.filter(a => a.airline === selectedAirline);
+
+  const active = src.filter(r => r.status === 'active').length;
+  const seasonal = src.filter(r => r.status === 'seasonal').length;
+  const retired = src.filter(r => r.status === 'retired').length;
+  const avgDist = Math.round(src.reduce((s,r) => s+r.distanceKm, 0) / (src.length || 1));
+  const longest = src.reduce((a,b) => a.distanceKm > b.distanceKm ? a : b, src[0]);
+  const shortest = src.reduce((a,b) => a.distanceKm < b.distanceKm ? a : b, src[0]);
 
   const byRegion = {};
-  ROUTES.forEach(r => byRegion[r.region] = (byRegion[r.region] || 0) + 1);
-  const maxR = Math.max(...Object.values(byRegion));
+  src.forEach(r => byRegion[r.region] = (byRegion[r.region] || 0) + 1);
+  const maxR = Math.max(...Object.values(byRegion), 1);
+
+  const byAirline = {};
+  ALL_ROUTES.forEach(r => byAirline[r.airline] = (byAirline[r.airline] || 0) + 1);
+  const maxA = Math.max(...Object.values(byAirline), 1);
+  const airlineColors = { LH: '#4A90D9', VS: '#E8365D', CX: '#00A89C', SA: '#F5A623', IB: '#D4222A' };
 
   const byStatus = { Active: active, Seasonal: seasonal, Retired: retired };
 
+  const airlinesSection = selectedAirline === 'all' ? `
+    <div class="stat-card">
+      <div class="stat-card-title">Routes by Airline</div>
+      <div class="bar-chart" style="margin-top:8px">
+        ${Object.entries(byAirline).map(([code, v]) => {
+          const info = AIRLINES[code] || {};
+          const color = airlineColors[code] || 'var(--gold)';
+          return `<div class="bar-item">
+            <span class="bar-dest" style="width:30px"><span class="airline-tag at-${code}" style="padding:1px 5px;font-size:8px">${code}</span></span>
+            <div class="bar-wrap"><div class="bar-fill" style="width:${(v/maxA)*100}%;background:${color}"></div></div>
+            <span class="bar-val">${v}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-card-title">Fleet by Airline</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:10px">
+        ${Object.entries(AIRLINES).map(([code, info]) => {
+          const planes = ALL_AIRCRAFT.filter(a => a.airline === code);
+          const color = airlineColors[code] || 'var(--gold)';
+          return `<div style="display:flex;align-items:center;gap:10px">
+            <span class="airline-tag at-${code}" style="min-width:30px;text-align:center">${code}</span>
+            <span style="font-size:13px;color:var(--text);flex:1">${info.name}</span>
+            <span style="font-family:'Space Mono',monospace;font-size:11px;color:${color}">${planes.length} frames</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);font-style:italic;padding-left:40px;margin-top:-4px">${info.note}</div>`;
+        }).join('')}
+      </div>
+    </div>` : '';
+
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card">
-      <div class="stat-card-title">Total Routes (All Eras)</div>
-      <div class="stat-big">${ROUTES.length}</div>
+      <div class="stat-card-title">Total Routes (All Eras)${selectedAirline !== 'all' ? ' — ' + (AIRLINES[selectedAirline]?.name || selectedAirline) : ''}</div>
+      <div class="stat-big">${src.length}</div>
       <div class="stat-desc">${active} active · ${seasonal} seasonal · ${retired} historical</div>
       <div class="bar-chart" style="margin-top:16px">
         ${Object.entries(byStatus).map(([k,v]) => `<div class="bar-item">
           <span class="bar-dest" style="width:55px">${k}</span>
-          <div class="bar-wrap"><div class="bar-fill" style="width:${(v/ROUTES.length)*100}%"></div></div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${(v/(src.length||1))*100}%"></div></div>
           <span class="bar-val">${v}</span>
         </div>`).join('')}
       </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-card-title">Active A340-642 Fleet</div>
-      <div class="stat-big">${totalFleet}</div>
-      <div class="stat-desc">All based at Frankfurt (FRA); final scheduled retirement Oct 25, 2026</div>
-      <div style="margin-top:16px">
-        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:10px">Active Registrations</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          ${AIRCRAFT.filter(a => a.status === 'active').map(a => `<span class="fc-route-tag">${a.reg}</span>`).join('')}
-        </div>
-      </div>
-    </div>
+    ${airlinesSection}
 
     <div class="stat-card">
       <div class="stat-card-title">Longest Route</div>
-      <div class="stat-big" style="font-size:36px">${longest.destFull}</div>
-      <div class="stat-desc">${longest.hub} → ${longest.dest} · ${longest.distanceKm.toLocaleString()} km · ${longest.duration}</div>
+      ${longest ? `<div class="stat-big" style="font-size:32px">${longest.destFull}</div>
+      <div class="stat-desc"><span class="airline-tag at-${longest.airline}">${longest.airline}</span> ${longest.hub} → ${longest.dest} · ${longest.distanceKm.toLocaleString()} km · ${longest.duration}</div>` : '<div class="stat-desc">No data</div>'}
     </div>
 
     <div class="stat-card">
       <div class="stat-card-title">Average Route Distance</div>
       <div class="stat-big">${avgDist.toLocaleString()}<span style="font-size:24px"> km</span></div>
-      <div class="stat-desc">Across all ${ROUTES.length} historical & current routes</div>
+      <div class="stat-desc">Across all ${src.length} routes in current selection</div>
     </div>
 
     <div class="stat-card">
@@ -1907,25 +2243,16 @@ function renderStats() {
     </div>
 
     <div class="stat-card">
-      <div class="stat-card-title">Aircraft Specifications</div>
+      <div class="stat-card-title">Aircraft Specifications (A340-642)</div>
       <div class="detail-grid" style="margin-top:8px">
         <div><div class="detail-item-label">Length</div><div class="detail-item-value mono">75.36 m</div></div>
         <div><div class="detail-item-label">Wingspan</div><div class="detail-item-value mono">63.45 m</div></div>
         <div><div class="detail-item-label">Engines</div><div class="detail-item-value">4× RR Trent 556</div></div>
         <div><div class="detail-item-label">Range</div><div class="detail-item-value mono">14,600 km</div></div>
         <div><div class="detail-item-label">Cruise</div><div class="detail-item-value mono">Mach 0.82</div></div>
-        <div><div class="detail-item-label">Capacity</div><div class="detail-item-value mono">297 (LH cfg)</div></div>
+        <div><div class="detail-item-label">Total Orders</div><div class="detail-item-value mono">97 delivered</div></div>
         <div><div class="detail-item-label">MTOW</div><div class="detail-item-value mono">368,000 kg</div></div>
-        <div><div class="detail-item-label">First LH Svc</div><div class="detail-item-value">Aug 2002</div></div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-card-title">Munich A340-600 Era</div>
-      <div class="stat-big" style="font-size:28px">2003 – 2024</div>
-      <div class="stat-desc">Munich A340-600 ops ended Oct 26, 2024. All remaining aircraft consolidated at Frankfurt.</div>
-      <div style="margin-top:14px;padding:10px 14px;background:rgba(201,168,76,0.06);border-left:2px solid var(--gold-dim);font-size:13px;color:var(--text-dim);font-style:italic">
-        Only 5 frames remain active: D-AIHF, D-AIHW, D-AIHX, D-AIHY, D-AIHZ. Final scheduled passenger flight: Oct 25, 2026 (RUH→FRA), then replaced by Boeing 787 / A350-1000.
+        <div><div class="detail-item-label">First service</div><div class="detail-item-value">2002 (LH/VS/CX/SA/IB)</div></div>
       </div>
     </div>
 
@@ -1933,16 +2260,16 @@ function renderStats() {
       <div class="stat-card-title">Historical Timeline</div>
       <div style="margin-top:8px">
         ${[
-          ['2002', 'A340-600 enters service with Lufthansa'],
-          ['2003', 'First frames D-AIHA/B/C delivered; FRA & MUC ops begin'],
-          ['2006–07', 'Fleet expansion; 24 frames total ordered'],
-          ['2020', 'COVID-19: fleet largely stored at Teruel, Spain'],
-          ['2021', 'Gradual reactivation; some frames scrapped'],
-          ['2022', 'Return to service; MUC A346 hub reactivated'],
-          ['2024-03', 'Bogotá (BOG) route retired; replaced by A350'],
-          ['2025', '4 more frames withdrawn; only 5 active: D-AIHF/W/X/Y/Z'],
-          ['2026-03', 'Final BOS schedule: Mar 30 – Jun 14; IAD added Jun 2026'],
-          ['2026-10', 'Final scheduled flight Oct 25: RUH→FRA; full retirement'],
+          ['2002', 'A340-642 enters service simultaneously with LH, VS, CX, SA, IB'],
+          ['2003', 'Iberia A346 fleet expands to cover full LATAM network from MAD'],
+          ['2006–08', 'Fleet peaks; LH orders 24 frames; VS expands to 19'],
+          ['2008', 'Cathay Pacific transfers all 3 frames to Hainan Airlines'],
+          ['2015–18', 'A350/787 displacements begin; VS, SA retire Asia/US routes'],
+          ['2020', 'COVID-19: VS retires all A346s (Mar 8); IB grounds fleet (Jul–Aug)'],
+          ['2020–21', 'SAA restructuring; all 9 frames retired; LH fleet at Teruel'],
+          ['2022–23', 'LH reactivates 5 frames for Frankfurt ops; MUC resumes A346'],
+          ['2024-10', 'Munich A340-600 ops end Oct 26, 2024'],
+          ['2026-10', 'Final LH A346 passenger flight: Oct 25 (RUH→FRA)'],
         ].map(([y,e]) => `<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
           <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gold);min-width:55px">${y}</span>
           <span style="font-size:13px;color:var(--text-dim)">${e}</span>
@@ -1957,8 +2284,8 @@ function renderStats() {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  updateHeaderStats();
   renderRoutes();
-  document.getElementById('stat-routes').textContent = ROUTES.length;
 });
 </script>
 </body>
